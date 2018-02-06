@@ -21,7 +21,7 @@ const controller = Botkit.slackbot({
   rtm_receive_messages: false,
   storage: mongoStorage
 }).configureSlackApp({
-  clientId: config('SLACK_ClIENT_ID'),
+  clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
   redirectUri: 'https://problem-bot-beta.herokuapp.com/oauth',
   scopes: ['bot']
