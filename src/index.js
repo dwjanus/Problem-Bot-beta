@@ -18,8 +18,7 @@ if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET')) {
 }
 
 const controller = Botkit.slackbot({
-  interactive_replies: true,
-  rtm_receive_messages: false,
+  rtm_receive_messages: true,
   storage: mongoStorage
 }).configureSlackApp({
   clientId: config('SLACK_CLIENT_ID'),
@@ -58,6 +57,7 @@ controller.startTicking()
 // quick greeting/create convo on new bot creation
 controller.on('create_bot', (bot, botConfig) => {
   console.log('** bot is being created **')
+
   if (_bots[bot.config.token]) { // do nothing
     console.log(`--> bot: ${bot.config.token} already exists`)
   } else {
