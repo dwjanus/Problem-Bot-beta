@@ -1,7 +1,7 @@
 import util from 'util'
 import jsforce from 'jsforce'
-import config from '../../lib/config.js'
-import mongo from '../../lib/mongo-storage.js'
+import config from '../lib/config.js'
+import mongo from '../lib/mongo-storage.js'
 
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 

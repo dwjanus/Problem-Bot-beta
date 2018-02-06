@@ -2,7 +2,7 @@
   "name": "problembot",
   "version": "1.0.0",
   "description": "bot to address and submit new problems",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
     "clean": "rm -rf build",
     "postinstall": "npm run compile",

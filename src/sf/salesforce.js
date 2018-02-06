@@ -1,14 +1,13 @@
 
 import util from 'util'
-import utility from '../../lib/utility.js'
+import utility from '../lib/utility.js'
 import jsforce from 'jsforce'
-import mongo from '../../lib/mongo-storage.js'
-import config from '../../lib/config.js'
+import mongo from '../lib/mongo-storage.js'
+import config from '../lib/config.js'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
-
 
 const recordType = {
   Incident: '01239000000EB4NAAW',

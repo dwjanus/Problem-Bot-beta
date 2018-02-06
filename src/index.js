@@ -1,7 +1,7 @@
 import Botkit from 'botkit'
 import util from 'util'
-import config from '../lib/config.js'
-import mongo from '../lib/mongo-storage.js'
+import config from './lib/config.js'
+import mongo from './lib/mongo-storage.js'
 import auth from './sf/salesforce-auth.js'
 
 const mongoStorage = mongo({ mongoUri: config('MONGODB_URI') })
