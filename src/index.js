@@ -1,5 +1,6 @@
 import Botkit from 'botkit'
 import util from 'util'
+import _ from 'lodash'
 import config from './lib/config.js'
 import mongo from './lib/mongo-storage.js'
 import auth from './sf/salesforce-auth.js'
@@ -52,6 +53,8 @@ function trackBot(bot) {
   _bots[bot.config.token] = bot
 }
 
+controller.startTicking()
+
 // quick greeting/create convo on new bot creation
 controller.on('create_bot', (bot, botConfig) => {
   console.log('** bot is being created **')
@@ -83,4 +86,28 @@ controller.on('rtm_open', (bot) => {
 controller.on('rtm_close', (bot) => {
   console.log(`** The RTM api just closed -- ${bot.id}`)
   // may want to attempt to re-open
+})
+
+controller.hears(['(p|P)roblem'], ['direct_message', 'direct_mention'], (bot, message) => {
+  console.log(`Message:\n${util.inspect(message)}`)
+
+  // 1. parse relavent info from message body
+  //      a. description
+  //      b. time range --> array of messages in channel
+  const body = _.split(message.text, ':')[1]
+  const timeframe = _.split(body, /[(F|f)rom]/)[1]
+  const description = _.split(body, /[(c|C)apture]/)[0]
+  const start = _.split(timeframe, /[(T|t)o]/)[0]
+  const end = _.split(timeframe, /[(T|t)o]/)[1]
+
+  console.log(`\ndescription: ${description}\nstart: ${start} -- end: ${end}`)
+
+  // 1.a parse channel messages from timeframe
+
+
+  // 2. pass to salesforce method and instantiate problem with description => return id of new problem
+
+  // 3. pass id of problem and array of messages into second function and append all as comments
+
+  // 4. reply accordingly
 })

@@ -93,8 +93,8 @@ export default ((slackUserId) => {
 function retrieveSfObj (conn) {
   return {
     // this will become generic Problem creation handler
-    newProblem (subject, requester, email, description, callback) {
-      console.log('** [salesforce] createIncident **')
+    newProblem (description, requester, callback) {
+      console.log('** creating new Problem **')
       let request
       storage.users.get(requester, (user) => {
         const userId = user.sf.id
