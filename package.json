@@ -4,8 +4,32 @@
   "description": "bot to address and submit new problems",
   "main": "index.js",
   "scripts": {
+    "clean": "rm -rf build",
+    "postinstall": "npm run compile",
+    "compile": "npm run clean && babel src -d build",
+    "start": "node ./build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Devin Janus",
-  "license": "ISC"
+  "license": "ISC",
+  "engines": {
+    "node": "7.0.0",
+    "npm": "4.2.0"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "botkit": "^0.6.9",
+    "jsforce": "^1.8.0",
+    "lodash": "^4.17.5",
+    "monk": "^6.0.5"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.17.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.6.1"
+  }
 }

@@ -20,9 +20,10 @@ const controller = Botkit.slackbot({
   interactive_replies: true,
   storage: mongoStorage
 }).configureSlackApp({
-  clientId: config('SLACK_CLIENT_ID'),
+  clientId: config('SLACK_ClIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
-  redirectUri: 'https://problembot-beta.herokuapp.com/oauth',
+  token: config('SLACK_BOT_TOKEN'),
+  redirectUri: 'https://problem-bot-beta.herokuapp.com/oauth',
   scopes: ['bot'],
   rtm_receive_messages: false
 })
@@ -37,7 +38,7 @@ controller.setupWebserver(port, (err, webserver) => {
 
   webserver.get('/', (req, res) => {
     res.send('<a href="https://slack.com/oauth/authorize?scope=bot&' +
-      'client_id=64177576980.78861190246"><img alt="Add to Slack" ' +
+      'client_id=64177576980.310915268453"><img alt="Add to Slack" ' +
       'height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" ' +
       'srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x,' +
       'https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>')
@@ -45,7 +46,12 @@ controller.setupWebserver(port, (err, webserver) => {
 
   webserver.get('/login/:slackUserId', auth.login)
   webserver.get('/authorize', auth.oauthCallback)
+})
 
+const _bots = {}
+function trackBot(bot) {
+  _bots[bot.config.token] = bot
+}
 
 // quick greeting/create convo on new bot creation
 controller.on('create_bot', (bot, botConfig) => {
@@ -55,16 +61,9 @@ controller.on('create_bot', (bot, botConfig) => {
   } else {
     bot.startRTM((err) => {
       if (!err) {
-        if (_convos[bot.config.token]) {
-          console.log(`--> convo: ${bot.config.token} already exists`)
-          _convos[bot.config.token].getUserEmailArray(bot)
-        } else {
-          console.log('--> convo not found, new one being instantiated')
-          const convo = new Conversation(controller, bot)
-          trackConvo(bot, convo)
-          convo.getUserEmailArray(bot)
-        }
+        trackBot(bot)
       }
+
       bot.startPrivateConversation({ user: botConfig.createdBy }, (error, convo) => {
         if (error) {
           console.log(error)
@@ -85,22 +84,4 @@ controller.on('rtm_open', (bot) => {
 controller.on('rtm_close', (bot) => {
   console.log(`** The RTM api just closed -- ${bot.id}`)
   // may want to attempt to re-open
-})
-
-// connect all the teams
-controller.storage.teams.all((err, teams) => {
-  console.log('** connecting teams **\n')
-  if (err) throw new Error(err)
-  for (const t in teams) {
-    if (teams[t].bot) {
-      const bot = controller.spawn(teams[t]).startRTM((error) => {
-        if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
-        else {
-          const convo = Conversation(controller, bot)
-          trackConvo(bot, convo)
-          convo.getUserEmailArray(bot)
-        }
-      })
-    }
-  }
 })

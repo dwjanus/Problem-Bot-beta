@@ -1,7 +1,7 @@
 import util from 'util'
 import jsforce from 'jsforce'
-import config from '../../config/config.js'
-import mongo from '../../config/mongo-storage.js'
+import config from '../../lib/config.js'
+import mongo from '../../lib/mongo-storage.js'
 
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
@@ -13,7 +13,7 @@ const oauth2 = new jsforce.OAuth2({
   loginUrl: 'https://test.salesforce.com',
   clientId: config('SF_ID'),
   clientSecret: config('SF_SECRET'),
-  redirectUri: 'https://slackmanage.herokuapp.com/authorize'
+  redirectUri: 'https://problem-bot-beta.herokuapp.com/authorize'
 })
 
 exports.login = (req, res) => {
