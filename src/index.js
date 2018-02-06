@@ -18,14 +18,13 @@ if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET')) {
 
 const controller = Botkit.slackbot({
   interactive_replies: true,
+  rtm_receive_messages: false,
   storage: mongoStorage
 }).configureSlackApp({
   clientId: config('SLACK_ClIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
-  token: config('SLACK_BOT_TOKEN'),
   redirectUri: 'https://problem-bot-beta.herokuapp.com/oauth',
-  scopes: ['bot'],
-  rtm_receive_messages: false
+  scopes: ['bot']
 })
 
 controller.setupWebserver(port, (err, webserver) => {
