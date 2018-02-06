@@ -17,6 +17,7 @@
     "npm": "4.2.0"
   },
   "dependencies": {
+    "babel-cli": "^6.26.0",
     "bluebird": "^3.5.1",
     "botkit": "^0.6.9",
     "jsforce": "^1.8.0",
