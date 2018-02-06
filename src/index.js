@@ -3,7 +3,7 @@ import util from 'util'
 import _ from 'lodash'
 import config from './lib/config.js'
 import mongo from './lib/mongo-storage.js'
-import auth from './sf/salesforce-auth.js'
+// import auth from './sf/salesforce-auth.js'
 
 const mongoStorage = mongo({ mongoUri: config('MONGODB_URI') })
 const port = process.env.PORT || process.env.port || config('PORT')
@@ -30,7 +30,7 @@ const controller = Botkit.slackbot({
 
 controller.setupWebserver(port, (err, webserver) => {
   if (err) console.log(err)
-  controller.createWebhookEndpoints(controller.webserver)
+
   controller.createOauthEndpoints(controller.webserver, (authErr, req, res) => {
     if (authErr) res.status(500).send(`ERROR: ${authErr}`)
     else res.send('Success! Problem Bot (beta) has been added to your team')
@@ -44,8 +44,8 @@ controller.setupWebserver(port, (err, webserver) => {
       'https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>')
   })
 
-  webserver.get('/login/:slackUserId', auth.login)
-  webserver.get('/authorize', auth.oauthCallback)
+  // webserver.get('/login/:slackUserId', auth.login)
+  // webserver.get('/authorize', auth.oauthCallback)
 })
 
 const _bots = {}
@@ -88,15 +88,15 @@ controller.on('rtm_close', (bot) => {
   // may want to attempt to re-open
 })
 
-controller.hears(['(p|P)roblem'], ['direct_message', 'direct_mention'], (bot, message) => {
+controller.hears(['(*.)'], ['direct_message', 'direct_mention'], (bot, message) => {
   console.log(`Message:\n${util.inspect(message)}`)
 
   // 1. parse relavent info from message body
   //      a. description
   //      b. time range --> array of messages in channel
-  const body = _.split(message.text, ':')[1]
-  const timeframe = _.split(body, /[(F|f)rom]/)[1]
-  const description = _.split(body, /[(c|C)apture]/)[0]
+  const body = _.split(message.text, /[(c|C)apture]/)
+  const timeframe = _.split(body[1], /[(F|f)rom]/)[1]
+  const description = body[0]
   const start = _.split(timeframe, /[(T|t)o]/)[0]
   const end = _.split(timeframe, /[(T|t)o]/)[1]
 

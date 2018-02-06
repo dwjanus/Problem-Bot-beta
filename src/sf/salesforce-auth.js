@@ -49,7 +49,6 @@ exports.oauthCallback = (req, res) => {
     console.log(`Org ID: ${userInfo.organizationId}`)
     console.log(`Server URL: ${userInfo.url}`)
 
-    // for final security measure we will encrypt these tokens
     sfTokens = {
       id: userInfo.id,
       org: userInfo.organizationId,
