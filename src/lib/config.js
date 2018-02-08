@@ -11,10 +11,9 @@ const config = {
   ICON_EMOJI: ':mcfly:',
   SLACK_CLIENT_ID: process.env.SLACK_CLIENT_ID,
   SLACK_CLIENT_SECRET: process.env.SLACK_CLIENT_SECRET,
-  SF_SECRET: process.env.SF_SECRET,
   SF_ID: process.env.SF_ID,
-  MONGODB_URI: process.env.MONGODB_URI,
-  MAX_LIST_SIZE: 6
+  SF_SECRET: process.env.SF_SECRET,
+  MONGODB_URI: process.env.MONGODB_URI
 }
 
 export default (key) => {

@@ -31,7 +31,7 @@ const record = (arg, key) => {
 }
 
 const oauth2 = new jsforce.OAuth2({
-  loginUrl: 'https://test.salesforce.com',
+  // loginUrl: 'https://test.salesforce.com',
   clientId: config('SF_ID'),
   clientSecret: config('SF_SECRET'),
   redirectUri: 'https://problem-bot-beta.herokuapp.com/authorize'
@@ -94,31 +94,74 @@ function retrieveSfObj (conn) {
   return {
     // this will become generic Problem creation handler
     newProblem (description, requester, callback) {
-      console.log('** creating new Problem **')
       let request
       storage.users.get(requester, (user) => {
         const userId = user.sf.id
-        console.log(`[salesforce] ** about to createIncident for ${userId}`)
+        console.log(`[salesforce] ** about to create new Problem for Slack user: ${requester} -- SF: ${userId}`)
         conn.sobject('Case').create({
           Subject: subject,
           SamanageESD__RequesterUser__c: userId,
           Description: description,
-          RecordTypeId: record('Incident'),
+          RecordTypeId: record('Problem'),
           Origin: 'Slack'
         }, (error, ret) => {
           if (error || !ret.success) callback(error, null)
-          console.log(`Created records id: ${ret.id}`)
-          request = ret
-          request.title_link = `${conn.instanceUrl}/${ret.id}`
-          conn.sobject('Case').retrieve(ret.id, (reterr, res) => {
-            if (reterr) console.log(reterr)
-            request.CaseNumber = res.CaseNumber
-            return callback(null, request)
-          })
+          console.log(`> New Problem Created - Record id: ${ret.id}`)
+          return ret.id
+          // request = ret
+          // request.title_link = `${conn.instanceUrl}/${ret.id}`
+          // conn.sobject('Case').retrieve(ret.id, (reterr, res) => {
+          //   if (reterr) console.log(reterr)
+          //   request.CaseNumber = res.CaseNumber
+          //   return callback(null, request)
+          // })
         })
       })
     },
 
+    addComment (comments, problemId) {
+      const getSFID = Promise.promisify(this.getUserIdFromName)
+      const createComment = Promise.promisify(this.createComment)
+
+      // iterate through comments[ { user (Full name), commentBody }] and grab sfid for each slack user
+      return new Promise((resolve, reject) => {
+        return Promise.map(comments, (comment) => {
+           return getSFID(comment.user).then((sfid) => {
+             return { sfid, body: comment.commentBody }
+           })
+           .catch(err => console.log(err))
+        }).then((sfComments) => {
+          const topComment = sfComments[0]
+          const feedComments = _.slice(sfComments, 1)
+          return createComment(topComment.commentBody, problemId, topComment.sfid).then((comment) => {
+            return resolve({ id: comment.id, feedComments })
+          })
+        })
+        .catch((err) => {
+          console.log(err)
+          return reject(err)
+        })
+      })
+    },
+
+    createComment (body, parentId, userId, callback) {
+      console.log('** [salesforce] createComment **')
+      let visibility = 'AllUsers'
+      // if (_.startsWith(body, ':')) visibility = 'InternalUsers'
+      conn.sobject('FeedItem').create({
+        Body: body,
+        ParentId: parentId,
+        CreatedById: userId,
+        Type: 'TextPost', // currently we can not support anything but text
+        NetworkScope: 'AllNetworks',
+        Visibility: visibility,
+        Status: 'Published'
+      }, (err, ret) => {
+        if (err || !ret.success) callback(err, null)
+        console.log(`Created record ${util.inspect(ret)}`)
+        callback(null, ret)
+      })
+    },
     
     // NOTE: these are the fields we want from this function
     // Name: 'Devin Janus
