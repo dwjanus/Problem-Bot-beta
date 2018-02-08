@@ -91,11 +91,11 @@ controller.on('rtm_open', (bot) => {
   // getUserEmailArray(bot)
 })
 
-controller.hears(['hello'], 'direct_message direct_mention', (bot, message) => {
+controller.hears(['hello'], 'direct_message,direct_mention', (bot, message) => {
   bot.reply(message, 'what it do fam')
 })
 
-controller.hears(['(*.)'], 'direct_message, direct_mention', (bot, message) => {
+controller.hears(['(*.)'], 'direct_message,direct_mention', (bot, message) => {
   console.log(`Message:\n${util.inspect(message)}`)
   
   // 1. parse relavent info from message body
