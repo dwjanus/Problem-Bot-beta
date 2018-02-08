@@ -50,7 +50,7 @@ controller.setupWebserver(port, (err, webserver) => {
 })
 
 const _bots = {}
-const _team = {}
+const _team = []
 function trackBot(bot) {
   _bots[bot.config.token] = bot
 }
