@@ -55,8 +55,6 @@ function trackBot(bot) {
   _bots[bot.config.token] = bot
 }
 
-controller.startTicking()
-
 // quick greeting/create convo on new bot creation
 controller.on('create_bot', (bot, botConfig) => {
   console.log('** bot is being created **')
@@ -81,22 +79,24 @@ controller.on('create_bot', (bot, botConfig) => {
   }
 })
 
-// Handle events related to the websocket connection to Slack
-controller.on('rtm_open', (bot) => {
-  console.log(`** The RTM api just connected! -- ${bot.id}`)
-  getUserEmailArray(bot)
-})
+controller.startTicking()
 
 controller.on('rtm_close', (bot) => {
   console.log(`** The RTM api just closed -- ${bot.id}`)
   // may want to attempt to re-open
 })
 
-controller.hears(['hello'], ['direct_message', 'direct_mention'], (bot, message) => {
+// Handle events related to the websocket connection to Slack
+controller.on('rtm_open', (bot) => {
+  console.log(`** The RTM api just connected! -- ${bot.id}`)
+  // getUserEmailArray(bot)
+})
+
+controller.hears(['hello'], 'direct_message direct_mention', (bot, message) => {
   bot.reply(message, 'what it do fam')
 })
 
-controller.hears(['(*.)'], ['direct_message', 'direct_mention'], (bot, message) => {
+controller.hears(['(*.)'], 'direct_message, direct_mention', (bot, message) => {
   console.log(`Message:\n${util.inspect(message)}`)
   
   // 1. parse relavent info from message body
