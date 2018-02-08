@@ -12,9 +12,7 @@ const parseMessages = () => {
 }
 
 
-
 module.exports = {
-  setAttachmentColor,
-  parseEntities,
+  parseMessages,
   formatCaseNumber
 }
