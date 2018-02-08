@@ -30,7 +30,7 @@ const controller = Botkit.slackbot({
 
 controller.setupWebserver(port, (err, webserver) => {
   if (err) console.log(err)
-
+  controller.createWebhookEndpoints(controller.webserver)
   controller.createOauthEndpoints(controller.webserver, (authErr, req, res) => {
     if (authErr) res.status(500).send(`ERROR: ${authErr}`)
     else res.send('Success! Problem Bot (beta) has been added to your team')
