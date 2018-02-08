@@ -19,7 +19,8 @@ if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET')) {
 }
 
 const controller = Botkit.slackbot({
-  rtm_receive_messages: true,
+  rtm_receive_messages: false,
+  interactive_replies: true,
   storage: mongoStorage
 }).configureSlackApp({
   clientId: config('SLACK_CLIENT_ID'),
