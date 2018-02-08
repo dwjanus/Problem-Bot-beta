@@ -91,6 +91,10 @@ controller.on('rtm_close', (bot) => {
   // may want to attempt to re-open
 })
 
+controller.hears(['hello'], ['direct_message', 'direct_mention'], (bot, message) => {
+  bot.reply(message, 'what it do fam')
+})
+
 controller.hears(['(*.)'], ['direct_message', 'direct_mention'], (bot, message) => {
   console.log(`Message:\n${util.inspect(message)}`)
   
@@ -125,7 +129,7 @@ controller.hears(['(*.)'], ['direct_message', 'direct_mention'], (bot, message) 
     })
   })
   .catch((err) => {
-    bot.reply(message, err)
+    bot.reply(message, err.text)
   })
 
   // 3. pass id of problem and array of messages into second function and append all as comments
