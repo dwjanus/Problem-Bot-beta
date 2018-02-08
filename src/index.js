@@ -19,13 +19,12 @@ if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET')) {
 }
 
 const controller = Botkit.slackbot({
-  rtm_receive_messages: true,
   storage: mongoStorage
 }).configureSlackApp({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
   redirectUri: 'https://problem-bot-beta.herokuapp.com/oauth',
-  scopes: ['bot']
+  scopes: ['bot', 'incoming-webhook']
 })
 
 controller.setupWebserver(port, (err, webserver) => {
@@ -155,3 +154,17 @@ const getUserEmailArray = (bot) => {
     }
   })
 }
+
+controller.storage.teams.all((err, teams) => {
+  console.log('** connecting teams **\n')
+  if (err) throw new Error(err)
+  for (const t in teams) {
+    if (teams[t].bot) {
+      const bot = controller.spawn(teams[t]).startRTM((error) => {
+        if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
+        else trackConvo(bot)
+      })
+    }
+  }
+})
+
