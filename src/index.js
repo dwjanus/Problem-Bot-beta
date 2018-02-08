@@ -50,6 +50,7 @@ controller.setupWebserver(port, (err, webserver) => {
 })
 
 const _bots = {}
+const _team = {}
 function trackBot(bot) {
   _bots[bot.config.token] = bot
 }
@@ -103,7 +104,7 @@ controller.hears(['(*.)'], ['direct_message', 'direct_mention'], (bot, message) 
   //      b. description
   //      c. time range --> array of messages in channel
 
-  const user = _.find(fullTeamList, { id: message.user }).fullName
+  const user = _.find(_team, { id: message.user }).fullName
   const body = _.split(message.text, /[(c|C)apture]/)
   const timeframe = _.split(body[1], /[(F|f)rom]/)[1]
   const description = body[0]
@@ -146,7 +147,7 @@ const getUserEmailArray = (bot) => {
       for (let i = 0; i < total; i++) {
         const member = response.members[i]
         const newMember = { id: member.id, team_id: member.team_id, name: member.name, fullName: member.real_name, email: member.profile.email }
-        fullTeamList.push(newMember)
+        _team.push(newMember)
         controller.storage.users.get(member.id, (error, user) => {
           if (err) console.log(error)
           if (!user || !user.sf) controller.storage.users.save(newMember) // adds new team member who do not have sf auth yet
