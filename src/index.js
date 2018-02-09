@@ -24,6 +24,8 @@ const controller = Botkit.slackbot({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
   redirectUri: 'https://problem-bot-beta.herokuapp.com/oauth',
+  rtm_receive_messages: false,
+  interactive_replies: true,
   scopes: ['bot', 'incoming-webhook']
 })
 
@@ -94,7 +96,85 @@ controller.hears(['hello'], 'direct_message,direct_mention', (bot, message) => {
   bot.reply(message, 'what it do fam')
 })
 
+
+// still need to add parse for timeframes to populate description area
 controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) => {
+  console.log('Testing interractive menus')
+
+  const subject = _.split(message.text, ':')[1]  
+  controller.storage.users.get(message.user, (error, user) => {
+    if (error) console.log(error)
+    
+    console.log(`user to pass to sf: ${util.inspect(user)}`)
+    console.log(`\subject: ${subject}\n`)
+
+    bot.reply(message, {
+      attachments: [
+        {
+          title: `Create new problem with subject: "${subject}"?`,
+          callback_id: `create_cancel:${subject}:${user.fullName}`,
+          attachment_type: 'default',
+          actions: [
+            {
+              name: 'create',
+              text: 'Create',
+              value: 'create',
+              type: 'button'
+            },
+            {
+              name: 'cancel',
+              text: 'Cancel',
+              value: 'cancel',
+              type: 'button'
+            }
+          ]
+        }
+      ]
+    })
+  })
+})
+
+controller.on('interactive_message_callback', (bot, message) => {
+  if (message.callback_id === 'create_cancel' && message.actions === 'create') {
+    const subject = _.split(message.callback_id, ':')[1]
+    const user = _.split(message.callback_id, ':')[2]
+    console.log(`>> new problem: ${subject}`)
+    
+    const dialog = bot.createDialog(
+      `New Problem - Requester: ${user}`,
+      'problem_dialog',
+      'Submit'
+    )
+    .addText('Subject', 'subject', `${subject}`)
+    .addSelect('Platform', 'platform', null, [
+      { label: 'MMBU', value: 'MMBU' },
+      { label: 'EBU', value: 'EBU' }
+    ])
+    .addSelect('Priority', 'priority', null, [
+      { label: 'Low', value: 'Low' },
+      { label: 'Medium', value: 'Medium' },
+      { label: 'High', value: 'High' }
+    ], { value: 'Medium' })
+    .addTextArea('Root Cause', 'root', null, 
+      { optional: true }
+    )
+    .addTextArea('Workaround', 'workaround', null, 
+      { optional: true }
+    )
+    .addTextArea('Impact Description', 'impact', null, 
+      { optional: true }
+    )
+    .addTextArea('Notes', 'notes', null, 
+      { optional: true }
+    )
+
+    bot.replyWithDialog(message, dialog.asObject())
+  }
+})
+
+
+
+controller.hears(['ooga'], 'direct_message,direct_mention', (bot, message) => {
   console.log(`Message:\n${util.inspect(message)}`)
   
   // 1. parse relavent info from message body
@@ -118,8 +198,9 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
     // 2. pass to salesforce method and instantiate problem with description => return id of new problem
     salesforce(user.id).then((samanage) => {
       samanage.newProblem(description, user, (problemId) => {
-        console.log(`problem id: ${util.inspect(problemId)}`)
-        return problemId
+        // console.log(`problem id: ${util.inspect(problemId)}`)
+        // return problemId
+        return
       })
       // .then((problemId) => {
       //   return samanage.addComments(comments, problemId)
