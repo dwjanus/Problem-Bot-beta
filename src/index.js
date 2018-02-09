@@ -206,7 +206,7 @@ controller.on('interactive_message_callback', (bot, trigger) => {
     }
       
 
-    bot.replyWithDialog(trigger, dialog.asObject(), (err, res) => {
+    bot.replyWithDialog(trigger, dialog, (err, res) => {
       if (err) console.log(err)
       else console.log('success!')
     })
