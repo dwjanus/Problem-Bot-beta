@@ -151,24 +151,30 @@ controller.on('interactive_message_callback', (bot, trigger) => {
     )
 
     dialog.addText('Subject', 'subject', `${subject}`)
+
     dialog.addSelect('Platform', 'platform', null, [
       { label: 'MMBU', value: 'MMBU' },
       { label: 'EBU', value: 'EBU' }
     ])
+
     dialog.addSelect('Priority', 'priority', null, [
       { label: 'Low', value: 'Low' },
       { label: 'Medium', value: 'Medium' },
       { label: 'High', value: 'High' }
     ], { value: 'Medium' })
+
     dialog.addTextArea('Root Cause', 'root', null, 
       { optional: true }
     )
+
     dialog.addTextArea('Workaround', 'workaround', null, 
       { optional: true }
     )
+
     dialog.addTextArea('Impact Description', 'impact', null, 
       { optional: true }
     )
+    
     dialog.addTextArea('Notes', 'notes', null, 
       { optional: true }
     )
