@@ -146,7 +146,8 @@ controller.on('interactive_message_callback', (bot, trigger) => {
     const dialog = bot.createDialog(
       `New Problem - Requester: ${user}`,
       'problem_dialog',
-      'Submit'
+      'Submit',
+      []
     )
     .addText('Subject', 'subject', `${subject}`)
     .addSelect('Platform', 'platform', null, [
