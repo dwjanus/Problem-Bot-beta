@@ -115,7 +115,7 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   console.log(`\ndescription: ${description}\nstart: ${start} -- end: ${end}`)
 
   // 1.a parse channel messages from timeframe
-  const comments // = PARSE
+  const comments // = parse function
 
   // 2. pass to salesforce method and instantiate problem with description => return id of new problem
   salesforce(user).then((samanage) => {
