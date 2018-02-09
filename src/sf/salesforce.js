@@ -106,8 +106,8 @@ function retrieveSfObj (conn) {
           Origin: 'Slack'
         }, (error, ret) => {
           if (error || !ret.success) callback(error, null)
-          console.log(`> New Problem Created - Record id: ${ret.id}`)
-          return ret.id
+          console.log(`> New Problem Created - Record id: ${util.inspect(ret)}`)
+          return ret
           // request = ret
           // request.title_link = `${conn.instanceUrl}/${ret.id}`
           // conn.sobject('Case').retrieve(ret.id, (reterr, res) => {

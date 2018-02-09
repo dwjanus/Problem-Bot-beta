@@ -118,7 +118,7 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
     // 2. pass to salesforce method and instantiate problem with description => return id of new problem
     salesforce(user.id).then((samanage) => {
       samanage.newProblem(description, user, (problemId) => {
-        console.log(`problem id: ${problemId}`)
+        console.log(`problem id: ${util.inspect(problemId)}`)
         return problemId
       })
       // .then((problemId) => {
@@ -128,6 +128,8 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
       // }).then((info) => {
       //   return bot.reply(message, info)
       // })
+    }).then(() => {
+      bot.reply(message, 'It is done.')
     })
     .catch((err) => {
       console.log(`oops! ${err}`)
