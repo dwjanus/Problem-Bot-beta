@@ -113,7 +113,7 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   // const comments = parse()
 
   // 2. pass to salesforce method and instantiate problem with description => return id of new problem
-  salesforce(user.id).then((samanage) => {
+  salesforce(message.user).then((samanage) => {
      samanage.newProblem(description, user, (problemId) => {
        console.log(`problem id: ${problemId}`)
        return problemId
