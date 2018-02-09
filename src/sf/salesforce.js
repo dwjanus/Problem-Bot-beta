@@ -102,7 +102,8 @@ function retrieveSfObj (conn) {
           Subject: description,
           SamanageESD__RequesterUser__c: userId,
           Description: description,
-          RecordTypeId: record('Problem'),
+          // RecordTypeId: record('Problem'),
+          SamanageESD__RecordType__c: 'Problem',
           Origin: 'Slack'
         }, (error, ret) => {
           if (error || !ret.success) callback(error, null)
