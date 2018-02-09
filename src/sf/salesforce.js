@@ -97,7 +97,7 @@ function retrieveSfObj (conn) {
       let request
       // storage.users.get(requester, (user) => {
         const userId = user.sf.id
-        console.log(`[salesforce] ** about to create new Problem for Slack user: ${requester} -- SF: ${userId}`)
+        console.log(`[salesforce] ** about to create new Problem for Slack user: ${user.id} -- SF: ${userId}`)
         conn.sobject('Case').create({
           Subject: subject,
           SamanageESD__RequesterUser__c: userId,
