@@ -103,10 +103,9 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   //      c. time range --> array of messages in channel
 
   let user = _.find(_team, { id: message.user })
-  if (user) user = user.id
   console.log(`user to pass to sf: ${user}`)
 
-  const description = _.split(message.text, ':')
+  const description = _.split(message.text, ':')[1]
 
   console.log(`\ndescription: ${description}\n`)
 

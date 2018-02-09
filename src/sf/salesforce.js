@@ -93,9 +93,9 @@ export default ((slackUserId) => {
 function retrieveSfObj (conn) {
   return {
     // this will become generic Problem creation handler
-    newProblem (description, requester, callback) {
+    newProblem (description, user, callback) {
       let request
-      storage.users.get(requester, (user) => {
+      // storage.users.get(requester, (user) => {
         const userId = user.sf.id
         console.log(`[salesforce] ** about to create new Problem for Slack user: ${requester} -- SF: ${userId}`)
         conn.sobject('Case').create({
@@ -116,7 +116,7 @@ function retrieveSfObj (conn) {
           //   return callback(null, request)
           // })
         })
-      })
+      // })
     },
 
     addComment (comments, problemId) {
