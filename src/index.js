@@ -103,9 +103,8 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   //      c. time range --> array of messages in channel
 
   let user = _.find(_team, { id: message.user })
-  console.log(`user:\n${util.inspect(user)}`)
-  // if (user) user = user.fullName
-  // console.log(`user full name: ${user}`)
+  if (user) user = user.id
+  console.log(`user to pass to sf: ${user}`)
   const body = _.split(message.text, /[(c|C)apture]/)
   const timeframe = _.split(body[1], /[(F|f)rom]/)[1]
   const description = body[0]
