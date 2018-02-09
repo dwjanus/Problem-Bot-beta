@@ -20,11 +20,11 @@ if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET')) {
 
 const controller = Botkit.slackbot({
   token: config('SLACK_BOT_TOKEN'),
-  clientVerificationToken: config('SLACK_VERIFY'),
   storage: mongoStorage
 }).configureSlackApp({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
+  clientVerificationToken: config('SLACK_VERIFY'),
   redirectUri: 'https://problem-bot-beta.herokuapp.com/oauth',
   interactive_replies: true,
   rtm_receive_messages: false,
