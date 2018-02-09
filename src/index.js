@@ -19,8 +19,6 @@ if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET')) {
 }
 
 const controller = Botkit.slackbot({
-  interactive_replies: true,
-  rtm_receive_messages: false,
   token: config('SLACK_BOT_TOKEN'),
   clientVerificationToken: config('SLACK_VERIFY'),
   storage: mongoStorage
@@ -28,6 +26,8 @@ const controller = Botkit.slackbot({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
   redirectUri: 'https://problem-bot-beta.herokuapp.com/oauth',
+  interactive_replies: true,
+  rtm_receive_messages: false,
   scopes: ['bot', 'incoming-webhook']
 })
 
