@@ -117,23 +117,23 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   // const comments = parse()
 
   // 2. pass to salesforce method and instantiate problem with description => return id of new problem
-  salesforce(user).then((samanage) => {
-    samanage.newProblem(message.text, user, (problemId) => {
-      console.log(`problem id: ${problemId}`)
-      return problemId
-    })
-    // .then((problemId) => {
-    //   return samanage.addComments(comments, problemId)
-    // }).then((feedComments) => {
-    //   return samanage.createFeed(feedComments.id, feedComments.feedComments)
-    // }).then((info) => {
-    //   return bot.reply(message, info)
-    // })
-  })
-  .catch((err) => {
-    console.log(`oops! ${err}`)
-    bot.reply(message, err.text)
-  })
+  // salesforce(user).then((samanage) => {
+  //   samanage.newProblem(message.text, user, (problemId) => {
+  //     console.log(`problem id: ${problemId}`)
+  //     return problemId
+  //   })
+  //   // .then((problemId) => {
+  //   //   return samanage.addComments(comments, problemId)
+  //   // }).then((feedComments) => {
+  //   //   return samanage.createFeed(feedComments.id, feedComments.feedComments)
+  //   // }).then((info) => {
+  //   //   return bot.reply(message, info)
+  //   // })
+  // })
+  // .catch((err) => {
+  //   console.log(`oops! ${err}`)
+  //   bot.reply(message, err.text)
+  // })
 
   // 3. pass id of problem and array of messages into second function and append all as comments
 
