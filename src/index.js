@@ -115,11 +115,10 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   console.log(`\ndescription: ${description}\nstart: ${start} -- end: ${end}`)
 
   // 1.a parse channel messages from timeframe
-  const comments // = parse function
+  // const comments = parse()
 
   // 2. pass to salesforce method and instantiate problem with description => return id of new problem
   salesforce(user).then((samanage) => {
-    console.log('got samanage back')
     samanage.newProblem(message.text, user, (problemId) => {
       console.log(`problem id: ${problemId}`)
       return problemId
@@ -133,6 +132,7 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
     // })
   })
   .catch((err) => {
+    console.log(`oops! ${err}`)
     bot.reply(message, err.text)
   })
 
