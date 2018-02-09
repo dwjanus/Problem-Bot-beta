@@ -105,35 +105,32 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   let user = _.find(_team, { id: message.user })
   if (user) user = user.id
   console.log(`user to pass to sf: ${user}`)
-  const body = _.split(message.text, /[(c|C)apture]/)
-  const timeframe = _.split(body[1], /[(F|f)rom]/)[1]
-  const description = body[0]
-  const start = _.split(timeframe, /[(T|t)o]/)[0]
-  const end = _.split(timeframe, /[(T|t)o]/)[1]
 
-  console.log(`\ndescription: ${description}\nstart: ${start} -- end: ${end}`)
+  const description = _.split(message.text, ':')
+
+  console.log(`\ndescription: ${description}\n`)
 
   // 1.a parse channel messages from timeframe
   // const comments = parse()
 
   // 2. pass to salesforce method and instantiate problem with description => return id of new problem
-  // salesforce(user).then((samanage) => {
-  //   samanage.newProblem(message.text, user, (problemId) => {
-  //     console.log(`problem id: ${problemId}`)
-  //     return problemId
-  //   })
-  //   // .then((problemId) => {
-  //   //   return samanage.addComments(comments, problemId)
-  //   // }).then((feedComments) => {
-  //   //   return samanage.createFeed(feedComments.id, feedComments.feedComments)
-  //   // }).then((info) => {
-  //   //   return bot.reply(message, info)
-  //   // })
-  // })
-  // .catch((err) => {
-  //   console.log(`oops! ${err}`)
-  //   bot.reply(message, err.text)
-  // })
+  salesforce(user).then((samanage) => {
+     samanage.newProblem(description, user, (problemId) => {
+       console.log(`problem id: ${problemId}`)
+       return problemId
+     })
+    // .then((problemId) => {
+    //   return samanage.addComments(comments, problemId)
+    // }).then((feedComments) => {
+    //   return samanage.createFeed(feedComments.id, feedComments.feedComments)
+    // }).then((info) => {
+    //   return bot.reply(message, info)
+    // })
+  })
+  .catch((err) => {
+    console.log(`oops! ${err}`)
+    bot.reply(message, err.text)
+  })
 
   // 3. pass id of problem and array of messages into second function and append all as comments
 
