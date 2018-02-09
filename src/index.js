@@ -102,7 +102,7 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   //      b. description
   //      c. time range --> array of messages in channel
 
-  const user = _.find(_team, { id: message.user })
+  let user = _.find(_team, { id: message.user })
   console.log(`user:\n${util.inspect(user)}`)
   if (user) user = user.fullName
   console.log(`user full name: ${user}`)
