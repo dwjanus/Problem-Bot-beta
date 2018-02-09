@@ -179,8 +179,8 @@ controller.on('interactive_message_callback', (bot, trigger) => {
           },
           {
             label: 'Root Cause',
-            name: 'root',
-            type: 'textarea',
+            type: 'textarea',            name: 'root',
+
             optional: true
           },
           {
