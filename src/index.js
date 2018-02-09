@@ -103,7 +103,7 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   //      c. time range --> array of messages in channel
 
   controller.storage.users.get(message.user, (error, user) => {
-    if (err) console.log(error)
+    if (error) console.log(error)
 
     // let user = _.find(_team, { id: message.user })
     console.log(`user to pass to sf: ${util.inspect(user)}`)
