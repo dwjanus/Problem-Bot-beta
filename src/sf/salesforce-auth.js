@@ -71,8 +71,8 @@ exports.oauthCallback = (req, res) => {
       </h2>
       </body>
       </html>
-      `
-    res.send(html)
+    `
+
     storage.users.get(slackUserId, (error, user) => {
       if (err) console.log(`Error obtaining user: ${slackUserId} -- ${error}`)
       console.log(`** storing user now **\n${util.inspect(user)}`)
@@ -80,5 +80,7 @@ exports.oauthCallback = (req, res) => {
       console.log(`about to save updated user data:\n${util.inspect(user)}`)
       storage.users.save(user)
     })
+
+    res.send(html)
   })
 }

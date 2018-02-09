@@ -101,8 +101,8 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   //      a. user
   //      b. description
   //      c. time range --> array of messages in channel
-
-  let user = _.find(_team, { id: message.user })
+  
+  let user = controller.storage.users.get(message.user)
   console.log(`user to pass to sf: ${util.inspect(user)}`)
 
   const description = _.split(message.text, ':')[1]
