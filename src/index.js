@@ -143,40 +143,63 @@ controller.on('interactive_message_callback', (bot, trigger) => {
     const user = _.split(trigger.callback_id, ':')[2]
     console.log(`>> new problem: ${subject}`)
     
-    let dialog = bot.createDialog(
+    const dialog = bot.createDialog(
       `New Problem - Requester: ${user}`,
       'problem_dialog',
       'Submit',
-      []
-    )
-
-    dialog.addText('Subject', 'subject', `${subject}`)
-
-    dialog.addSelect('Platform', 'platform', null, [
-      { label: 'MMBU', value: 'MMBU' },
-      { label: 'EBU', value: 'EBU' }
-    ])
-
-    dialog.addSelect('Priority', 'priority', null, [
-      { label: 'Low', value: 'Low' },
-      { label: 'Medium', value: 'Medium' },
-      { label: 'High', value: 'High' }
-    ], { value: 'Medium' })
-
-    dialog.addTextArea('Root Cause', 'root', null, 
-      { optional: true }
-    )
-
-    dialog.addTextArea('Workaround', 'workaround', null, 
-      { optional: true }
-    )
-
-    dialog.addTextArea('Impact Description', 'impact', null, 
-      { optional: true }
-    )
-    
-    dialog.addTextArea('Notes', 'notes', null, 
-      { optional: true }
+      [
+        {
+          label: 'Subject',
+          name: 'subject',
+          type: 'text',
+          value: `${subject}`
+        },
+        {
+          label: 'Platform',
+          name: 'platform', 
+          type: 'select',
+          value: null,
+          options: [
+            { label: 'MMBU', value: 'MMBU' },
+            { label: 'EBU', value: 'EBU' }
+          ]
+        },
+        {
+          label: 'Priority',
+          name: 'priority', 
+          type: 'select',
+          value: 'Medium',
+          options: [
+            { label: 'Low', value: 'Low' },
+            { label: 'Medium', value: 'Medium' },
+            { label: 'High', value: 'High' }
+          ]
+        },
+        {
+          label: 'Root Cause',
+          name: 'root',
+          type: 'textarea',
+          optional: true
+        },
+        {
+          label: 'Workaround',
+          name: 'workaround',
+          type: 'textarea',
+          optional: true
+        },
+        {
+          label: 'Impact Description',
+          name: 'impact',
+          type: 'textarea',
+          optional: true
+        },
+        {
+          label: 'Notes',
+          name: 'notes',
+          type: 'textarea',
+          optional: true
+        }
+      ]
     )
 
     bot.replyWithDialog(message, dialog.asObject())
