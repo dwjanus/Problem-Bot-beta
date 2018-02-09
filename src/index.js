@@ -143,32 +143,33 @@ controller.on('interactive_message_callback', (bot, trigger) => {
     const user = _.split(trigger.callback_id, ':')[2]
     console.log(`>> new problem: ${subject}`)
     
-    const dialog = bot.createDialog(
+    let dialog = bot.createDialog(
       `New Problem - Requester: ${user}`,
       'problem_dialog',
       'Submit',
       []
     )
-    .addText('Subject', 'subject', `${subject}`)
-    .addSelect('Platform', 'platform', null, [
+
+    dialog.addText('Subject', 'subject', `${subject}`)
+    dialog.addSelect('Platform', 'platform', null, [
       { label: 'MMBU', value: 'MMBU' },
       { label: 'EBU', value: 'EBU' }
     ])
-    .addSelect('Priority', 'priority', null, [
+    dialog.addSelect('Priority', 'priority', null, [
       { label: 'Low', value: 'Low' },
       { label: 'Medium', value: 'Medium' },
       { label: 'High', value: 'High' }
     ], { value: 'Medium' })
-    .addTextArea('Root Cause', 'root', null, 
+    dialog.addTextArea('Root Cause', 'root', null, 
       { optional: true }
     )
-    .addTextArea('Workaround', 'workaround', null, 
+    dialog.addTextArea('Workaround', 'workaround', null, 
       { optional: true }
     )
-    .addTextArea('Impact Description', 'impact', null, 
+    dialog.addTextArea('Impact Description', 'impact', null, 
       { optional: true }
     )
-    .addTextArea('Notes', 'notes', null, 
+    dialog.addTextArea('Notes', 'notes', null, 
       { optional: true }
     )
 
