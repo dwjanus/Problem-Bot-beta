@@ -134,8 +134,11 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   })
 })
 
-controller.on('interactive_message_callback', (bot, message) => {
-  if (message.callback_id === 'create_cancel' && message.actions === 'create') {
+controller.on('interactive_message_callback', (bot, trigger) => {
+  console.log('>> interactive_callback heard by controller')
+
+  // if (message.callback_id === 'create_cancel' && message.actions === 'create') {
+  if (trigger.actions[0].name.match(/create/))
     const subject = _.split(message.callback_id, ':')[1]
     const user = _.split(message.callback_id, ':')[2]
     console.log(`>> new problem: ${subject}`)
