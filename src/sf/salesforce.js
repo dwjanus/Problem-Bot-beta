@@ -10,17 +10,17 @@ import Promise from 'bluebird'
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
 const recordType = {
-  Incident: '01239000000EB4NAAW',
-  Change: '01239000000EB4MAAW',
-  Problem: '01239000000EB4OAAW',
-  Release: '01239000000EB4PAAW',
+  // Incident: '01239000000EB4NAAW',
+  // Change: '01239000000EB4MAAW',
+  Problem: '0120a000000vHVKAA2',
+  // Release: '01239000000EB4PAAW',
 }
 
 const recordName = {
-  '01239000000EB4NAAW': 'Incident',
-  '01239000000EB4MAAW': 'Change',
-  '01239000000EB4OAAW': 'Problem',
-  '01239000000EB4PAAW': 'Release'
+  // '01239000000EB4NAAW': 'Incident',
+  // '01239000000EB4MAAW': 'Change',
+  '0120a000000vHVKAA2': 'Problem',
+  // '01239000000EB4PAAW': 'Release'
 }
 
 const record = (arg, key) => {
@@ -102,8 +102,7 @@ function retrieveSfObj (conn) {
           Subject: description,
           SamanageESD__RequesterUser__c: userId,
           Description: description,
-          // RecordTypeId: record('Problem'),
-          SamanageESD__RecordType__c: 'Problem',
+          RecordTypeId: record('Problem'),
           Origin: 'Slack'
         }, (error, ret) => {
           if (error || !ret.success) callback(error, null)
