@@ -33,6 +33,7 @@ const controller = Botkit.slackbot({
 
 controller.setupWebserver(port, (err, webserver) => {
   if (err) console.log(err)
+  controller.createHomepageEndpoint(controller.webserver)
   controller.createWebhookEndpoints(controller.webserver)
   controller.createOauthEndpoints(controller.webserver, (authErr, req, res) => {
     if (authErr) res.status(500).send(`ERROR: ${authErr}`)
@@ -206,6 +207,8 @@ controller.on('interactive_message_callback', (bot, trigger) => {
       elements
     )
 
+    dialog = dialog.asObject()
+
     dialog.trigger_id = trigger.trigger_id,
 
     // const dialog = {
@@ -270,7 +273,7 @@ controller.on('interactive_message_callback', (bot, trigger) => {
     //   }
     // }
 
-    bot.replyWithDialog(trigger, dialog.asObject(), (err, res) => {
+    bot.replyWithDialog(trigger, dialog, (err, res) => {
       if (err) {
         console.log(err)
         console.log(`\ndialog:\n${util.inspect(dialog.asObject())}`)
