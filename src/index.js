@@ -143,64 +143,68 @@ controller.on('interactive_message_callback', (bot, trigger) => {
     const user = _.split(trigger.callback_id, ':')[2]
     console.log(`>> new problem: ${subject}`)
     
-    const dialog = bot.createDialog(
-      `New Problem - Requester: ${user}`,
-      'problem_dialog',
-      'Submit',
-      [
-        {
-          label: 'Subject',
-          name: 'subject',
-          type: 'text',
-          value: `${subject}`
-        },
-        {
-          label: 'Platform',
-          name: 'platform', 
-          type: 'select',
-          value: null,
-          options: [
-            { label: 'MMBU', value: 'MMBU' },
-            { label: 'EBU', value: 'EBU' }
-          ]
-        },
-        {
-          label: 'Priority',
-          name: 'priority', 
-          type: 'select',
-          value: 'Medium',
-          options: [
-            { label: 'Low', value: 'Low' },
-            { label: 'Medium', value: 'Medium' },
-            { label: 'High', value: 'High' }
-          ]
-        },
-        {
-          label: 'Root Cause',
-          name: 'root',
-          type: 'textarea',
-          optional: true
-        },
-        {
-          label: 'Workaround',
-          name: 'workaround',
-          type: 'textarea',
-          optional: true
-        },
-        {
-          label: 'Impact Description',
-          name: 'impact',
-          type: 'textarea',
-          optional: true
-        },
-        {
-          label: 'Notes',
-          name: 'notes',
-          type: 'textarea',
-          optional: true
-        }
-      ]
-    )
+    const dialog = {
+      trigger_id: trigger.trigger_id,
+      dialog: {
+        title: `New Problem - Requester: ${user}`,
+        callback_id: 'problem_dialog',
+        submit_label: 'Submit',
+        elements: [
+          {
+            label: 'Subject',
+            name: 'subject',
+            type: 'text',
+            value: `${subject}`
+          },
+          {
+            label: 'Platform',
+            name: 'platform', 
+            type: 'select',
+            value: null,
+            options: [
+              { label: 'MMBU', value: 'MMBU' },
+              { label: 'EBU', value: 'EBU' }
+            ]
+          },
+          {
+            label: 'Priority',
+            name: 'priority', 
+            type: 'select',
+            value: 'Medium',
+            options: [
+              { label: 'Low', value: 'Low' },
+              { label: 'Medium', value: 'Medium' },
+              { label: 'High', value: 'High' }
+            ]
+          },
+          {
+            label: 'Root Cause',
+            name: 'root',
+            type: 'textarea',
+            optional: true
+          },
+          {
+            label: 'Workaround',
+            name: 'workaround',
+            type: 'textarea',
+            optional: true
+          },
+          {
+            label: 'Impact Description',
+            name: 'impact',
+            type: 'textarea',
+            optional: true
+          },
+          {
+            label: 'Notes',
+            name: 'notes',
+            type: 'textarea',
+            optional: true
+          }
+        ]
+      }
+    }
+      
 
     bot.replyWithDialog(trigger, dialog.asObject(), (err, res) => {
       if (err) console.log(err)
