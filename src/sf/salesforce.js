@@ -99,7 +99,7 @@ function retrieveSfObj (conn) {
         const userId = user.sf.id
         console.log(`[salesforce] ** about to create new Problem for Slack user: ${user.id} -- SF: ${userId}`)
         conn.sobject('Case').create({
-          Subject: subject,
+          Subject: description,
           SamanageESD__RequesterUser__c: userId,
           Description: description,
           RecordTypeId: record('Problem'),
