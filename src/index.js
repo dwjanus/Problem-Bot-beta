@@ -162,7 +162,7 @@ controller.storage.teams.all((err, teams) => {
     if (teams[t].bot) {
       const bot = controller.spawn(teams[t]).startRTM((error) => {
         if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
-        else trackConvo(bot)
+        else trackBot(bot)
       })
     }
   }
