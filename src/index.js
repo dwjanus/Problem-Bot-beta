@@ -138,7 +138,7 @@ controller.on('interactive_message_callback', (bot, trigger) => {
   console.log('>> interactive_callback heard by controller')
 
   // if (message.callback_id === 'create_cancel' && message.actions === 'create') {
-  if (trigger.actions[0].name.match(/create/))
+  if (trigger.actions[0].name.match(/create/)) {
     const subject = _.split(message.callback_id, ':')[1]
     const user = _.split(message.callback_id, ':')[2]
     console.log(`>> new problem: ${subject}`)
