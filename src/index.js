@@ -101,39 +101,42 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   //      a. user
   //      b. description
   //      c. time range --> array of messages in channel
-  
-  let user = controller.storage.users.get(message.user)
-  console.log(`user to pass to sf: ${util.inspect(user)}`)
 
-  const description = _.split(message.text, ':')[1]
+  controller.storage.users.get(message.user, (error, user) => {
+    if (err) console.log(error)
 
-  console.log(`\ndescription: ${description}\n`)
+    let user = _.find(_team, { id: message.user })
+    console.log(`user to pass to sf: ${util.inspect(user)}`)
 
-  // 1.a parse channel messages from timeframe
-  // const comments = parse()
+    const description = _.split(message.text, ':')[1]
 
-  // 2. pass to salesforce method and instantiate problem with description => return id of new problem
-  salesforce(message.user).then((samanage) => {
-     samanage.newProblem(description, user, (problemId) => {
-       console.log(`problem id: ${problemId}`)
-       return problemId
-     })
-    // .then((problemId) => {
-    //   return samanage.addComments(comments, problemId)
-    // }).then((feedComments) => {
-    //   return samanage.createFeed(feedComments.id, feedComments.feedComments)
-    // }).then((info) => {
-    //   return bot.reply(message, info)
-    // })
+    console.log(`\ndescription: ${description}\n`)
+
+    // 1.a parse channel messages from timeframe
+    // const comments = parse()
+
+    // 2. pass to salesforce method and instantiate problem with description => return id of new problem
+    salesforce(message.user).then((samanage) => {
+      samanage.newProblem(description, user, (problemId) => {
+        console.log(`problem id: ${problemId}`)
+        return problemId
+      })
+      // .then((problemId) => {
+      //   return samanage.addComments(comments, problemId)
+      // }).then((feedComments) => {
+      //   return samanage.createFeed(feedComments.id, feedComments.feedComments)
+      // }).then((info) => {
+      //   return bot.reply(message, info)
+      // })
+    })
+    .catch((err) => {
+      console.log(`oops! ${err}`)
+      bot.reply(message, err.text)
+    })
+    // 3. pass id of problem and array of messages into second function and append all as comments
+
+    // 4. reply accordingly
   })
-  .catch((err) => {
-    console.log(`oops! ${err}`)
-    bot.reply(message, err.text)
-  })
-
-  // 3. pass id of problem and array of messages into second function and append all as comments
-
-  // 4. reply accordingly
 })
 
 const getUserEmailArray = (bot) => {
