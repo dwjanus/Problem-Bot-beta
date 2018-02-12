@@ -201,77 +201,15 @@ controller.on('interactive_message_callback', (bot, trigger) => {
     ]
 
     let dialog = bot.createDialog(
-      `New Problem - Requester: ${user}`,
-      'problem_dialog',
+      `New Problem`,
+      `problem_dialog_${user}`,
       'Submit',
       elements
     )
 
     dialog = dialog.asObject()
 
-    dialog.trigger_id = trigger.trigger_id,
-
-    // const dialog = {
-    //   trigger_id: trigger.trigger_id,
-    //   dialog: {
-    //     title: `New Problem - Requester: ${user}`,
-    //     callback_id: 'problem_dialog',
-    //     submit_label: 'Submit',
-    //     elements: [
-    //       {
-    //         label: 'Subject',
-    //         name: 'subject',
-    //         type: 'text',
-    //         value: `${subject}`
-    //       },
-    //       {
-    //         label: 'Platform',
-    //         name: 'platform', 
-    //         type: 'select',
-    //         value: null,
-    //         options: [
-    //           { label: 'MMBU', value: 'MMBU' },
-    //           { label: 'EBU', value: 'EBU' }
-    //         ]
-    //       },
-    //       {
-    //         label: 'Priority',
-    //         name: 'priority', 
-    //         type: 'select',
-    //         value: 'Medium',
-    //         options: [
-    //           { label: 'Low', value: 'Low' },
-    //           { label: 'Medium', value: 'Medium' },
-    //           { label: 'High', value: 'High' }
-    //         ]
-    //       },
-    //       {
-    //         label: 'Root Cause',
-    //         type: 'textarea',            
-    //         name: 'root',
-    //         optional: true
-    //       },
-    //       {
-    //         label: 'Workaround',
-    //         name: 'workaround',
-    //         type: 'textarea',
-    //         optional: true
-    //       },
-    //       {
-    //         label: 'Impact Description',
-    //         name: 'impact',
-    //         type: 'textarea',
-    //         optional: true
-    //       },
-    //       {
-    //         label: 'Notes',
-    //         name: 'notes',
-    //         type: 'textarea',
-    //         optional: true
-    //       }
-    //     ]
-    //   }
-    // }
+    dialog.trigger_id = trigger.trigger_id
 
     bot.replyWithDialog(trigger, dialog, (err, res) => {
       if (err) {
