@@ -275,7 +275,7 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 
     bot.replyWithDialog(trigger, dialog, (err, res) => {
       if (err) {
-        console.log(`\nerror: ${util.inspect(err)}`)
+        console.log(`\nerror: ${util.inspect(err)}\nresponse:\n${util.inspect(res)}\n`)
         console.log(`\ndialog:\n${util.inspect(dialog)}`)
       } else console.log('success!')
     })
