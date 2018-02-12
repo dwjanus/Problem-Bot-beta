@@ -175,18 +175,6 @@ controller.on('interactive_message_callback', (bot, trigger) => {
         ]
       },
       {
-        label: 'Root Cause',
-        type: 'textarea',
-        name: 'root',
-        optional: true
-      },
-      {
-        label: 'Workaround',
-        name: 'workaround',
-        type: 'textarea',
-        optional: true
-      },
-      {
         label: 'Impact Description',
         name: 'impact',
         type: 'textarea',
