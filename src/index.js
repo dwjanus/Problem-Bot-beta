@@ -126,8 +126,8 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   const to24 = convertTime12to24(to) + ':00'
   console.log(`24hrs --> from: ${from24}  to: ${to24}`)
 
-  const date_from = _.replace(now, /\d\d[:]\d\d[:]\d\d/, from)
-  const date_to = _.replace(now, /\d\d[:]\d\d[:]\d\d/, to)
+  const date_from = _.replace(now, /\d\d[:]\d\d[:]\d\d/, from24)
+  const date_to = _.replace(now, /\d\d[:]\d\d[:]\d\d/, to24)
   console.log(`date --> from: ${date_from}  to: ${date_to}`)
 
   const utc_from = dateformat(date_from, true)
@@ -338,6 +338,7 @@ function convertTime12to24(time12h) {
   let [hours, minutes] = time.split(':')
 
   if (hours === '12') hours = '00'
+  if (hours.length < 2) hours = `0${hours}`
   if (modifier === ( 'PM'|| 'pm' )) hours = parseInt(hours, 10) + 12
 
   return hours + ':' + minutes
