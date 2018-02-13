@@ -3,8 +3,10 @@ import util from 'util'
 import _ from 'lodash'
 import config from './lib/config.js'
 import mongo from './lib/mongo-storage.js'
-import salesforce from './sf/salesforce';
+import salesforce from './sf/salesforce'
 import auth from './sf/salesforce-auth.js'
+import dateformat from 'dateformat'
+import timestamp from 'unix-timestamp'
 
 const mongoStorage = mongo({ mongoUri: config('MONGODB_URI') })
 const port = process.env.PORT || process.env.port || config('PORT')
@@ -28,7 +30,7 @@ const controller = Botkit.slackbot({
   redirectUri: 'https://problem-bot-beta.herokuapp.com/oauth',
   interactive_replies: true,
   rtm_receive_messages: false,
-  scopes: ['bot', 'incoming-webhook']
+  scopes: ['bot', 'incoming-webhook', 'channels:history', 'groups:history']
 })
 
 controller.setupWebserver(port, (err, webserver) => {
@@ -102,15 +104,19 @@ controller.hears(['hello'], 'direct_message,direct_mention', (bot, message) => {
 
 // still need to add parse for timeframes to populate description area
 controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) => {
-  console.log('Testing interractive menus')
 
-  const subject = _.split(message.text, ':')[1]  
+  const tsplit = _.split(message.text, 'capture')
+  const subject = _.split(tsplit[0], 'problem:')[1]
+  const from = _.split(tsplit[1], ':')[1]
+  const to = _.split(tsplit[1], ':')[3]
+
+  console.log(`\ntsplit: ${tsplit}\nsubject: ${subject}\nfrom: ${from}  to: ${to}`)
+
   controller.storage.users.get(message.user, (error, user) => {
     if (error) console.log(error)
     
     console.log(`user to pass to sf: ${util.inspect(user)}`)
-    console.log(`\subject: ${subject}\n`)
-
+    
     bot.reply(message, {
       attachments: [
         {
@@ -211,8 +217,9 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 
 // handle a dialog submission
 // the values from the form are in event.submission    
-controller.on('dialog_submission', function(bot, message) {
+controller.on('dialog_submission', (bot, message) => {
   const submission = message.submission;
+
   console.log(`Message:\n${util.inspect(message)}`)
   console.log(`Submission:\n${util.inspect(submission)}`)
   
