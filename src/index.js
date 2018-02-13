@@ -105,12 +105,40 @@ controller.hears(['hello'], 'direct_message,direct_mention', (bot, message) => {
 // still need to add parse for timeframes to populate description area
 controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) => {
 
-  const tsplit = _.split(message.text, 'capture')
-  const subject = _.split(tsplit[0], 'problem:')[1]
-  const from = _.split(tsplit[1], ':')[1]
-  const to = _.split(tsplit[1], ':')[3]
+  // e.g. --> "new problem: _______ // 10:29am - 12:01pm"
 
-  console.log(`\ntsplit: ${tsplit}\nsubject: ${subject}\nfrom: ${from}  to: ${to}`)
+  // parse parameters from message body
+  const tsplit = _.split(message.text, ' // ')
+  const capture = _.split(tsplit[1], '-')
+
+  const subject = _.split(tsplit[0], 'problem:')[1]
+  const from = _.trim(capture[0])
+  const to = _.trim(capture[1])
+
+  console.log(`\ntsplit: ${tsplit}\nsubject: ${subject}\nfrom: ${from}  to: ${to}\n`)
+
+  // convert time range to datetime
+  let now = new Date()
+  now = dateformat(now)
+  console.log(`now: ${now}`)
+
+  const from24 = convertTime12to24(from) + ':00'
+  const to24 = convertTime12to24(to) + ':00'
+  console.log(`24hrs --> from: ${from24}  to: ${to24}`)
+
+  const date_from = _.replace(now, /\d\d[:]\d\d[:]\d\d/, from)
+  const date_to = _.replace(now, /\d\d[:]\d\d[:]\d\d/, to)
+  console.log(`date --> from: ${date_from}  to: ${date_to}`)
+
+  const utc_from = dateformat(date_from, true)
+  const utc_to = dateformat(date_to, true)
+  console.log(`UTC date --> from: ${utc_from}  to: ${utc_to}`)
+
+  const unix_from = Date.parse(utc_from)
+  const unix_to = Date.parse(utc_to)
+  console.log(`UNIX timestamps --> from: ${unix_from}  to: ${unix_to}`)
+
+  // ideally we can pass it into our channel history function from here
 
   controller.storage.users.get(message.user, (error, user) => {
     if (error) console.log(error)
@@ -303,6 +331,16 @@ const getUserEmailArray = (bot) => {
       }
     }
   })
+}
+
+function convertTime12to24(time12h) {
+  const [time, modifier] = time12h.split(/[a-z]/)
+  let [hours, minutes] = time.split(':')
+
+  if (hours === '12') hours = '00'
+  if (modifier === ( 'PM'|| 'pm' )) hours = parseInt(hours, 10) + 12
+
+  return hours + ':' + minutes
 }
 
 controller.storage.teams.all((err, teams) => {
