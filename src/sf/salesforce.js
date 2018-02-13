@@ -94,72 +94,17 @@ function retrieveSfObj (conn) {
   return {
     // this will become generic Problem creation handler
     newProblem (description, user, callback) {
-      let request
-      // storage.users.get(requester, (user) => {
-        const userId = user.sf.id
-        console.log(`[salesforce] ** about to create new Problem for Slack user: ${user.id} -- SF: ${userId}`)
-        conn.sobject('Case').create({
-          Subject: description,
-          SamanageESD__RequesterUser__c: userId,
-          Description: description,
-          RecordTypeId: record('Problem'),
-          Origin: 'Slack'
-        }, (error, ret) => {
-          if (error || !ret.success) callback(error, null)
-          console.log(`> New Problem Created - Record id: ${util.inspect(ret)}`)
-          return ret
-          // request = ret
-          // request.title_link = `${conn.instanceUrl}/${ret.id}`
-          // conn.sobject('Case').retrieve(ret.id, (reterr, res) => {
-          //   if (reterr) console.log(reterr)
-          //   request.CaseNumber = res.CaseNumber
-          //   return callback(null, request)
-          // })
-        })
-      // })
-    },
-
-    addComment (comments, problemId) {
-      const getSFID = Promise.promisify(this.getUserIdFromName)
-      const createComment = Promise.promisify(this.createComment)
-
-      // iterate through comments[ { user (Full name), commentBody }] and grab sfid for each slack user
-      return new Promise((resolve, reject) => {
-        return Promise.map(comments, (comment) => {
-           return getSFID(comment.user).then((sfid) => {
-             return { sfid, body: comment.commentBody }
-           })
-           .catch(err => console.log(err))
-        }).then((sfComments) => {
-          const topComment = sfComments[0]
-          const feedComments = _.slice(sfComments, 1)
-          return createComment(topComment.commentBody, problemId, topComment.sfid).then((comment) => {
-            return resolve({ id: comment.id, feedComments })
-          })
-        })
-        .catch((err) => {
-          console.log(err)
-          return reject(err)
-        })
-      })
-    },
-
-    createComment (body, parentId, userId, callback) {
-      console.log('** [salesforce] createComment **')
-      let visibility = 'AllUsers'
-      // if (_.startsWith(body, ':')) visibility = 'InternalUsers'
-      conn.sobject('FeedItem').create({
-        Body: body,
-        ParentId: parentId,
-        CreatedById: userId,
-        Type: 'TextPost', // currently we can not support anything but text
-        NetworkScope: 'AllNetworks',
-        Visibility: visibility,
-        Status: 'Published'
-      }, (err, ret) => {
-        if (err || !ret.success) callback(err, null)
-        console.log(`Created record ${util.inspect(ret)}`)
-        callback(null, ret)
+      const userId = user.sf.id
+      console.log(`[salesforce] ** about to create new Problem for Slack user: ${user.id} -- SF: ${userId}`)
+      conn.sobject('Case').create({
+        Subject: description,
+        SamanageESD__RequesterUser__c: userId,
+        Description: description,
+        RecordTypeId: record('Problem')
+      }, (error, ret) => {
+        if (error || !ret.success) callback(error, null)
+        console.log(`> New Problem Created - Record id: ${util.inspect(ret)}`)
+        return ret
       })
     },
     

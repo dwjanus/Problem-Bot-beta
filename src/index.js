@@ -209,14 +209,35 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 })
 
 
+// handle a dialog submission
+// the values from the form are in event.submission    
+controller.on('dialog_submission', function(bot, message) {
+  const submission = message.submission;
+  console.log(`Submission:\n${util.inspect(submission)}`)
+  
+
+  // bot.api.channels.history({
+  //   channel: message.channel,
+  //   inclusive: true,
+  //   latest: from,
+  //   oldest: to
+  // }, (err, res) => {
+
+  // })
+
+
+  bot.reply(message, 'Got it!');
+
+  // call dialogOk or else Slack will think this is an error
+  bot.dialogOk();
+});
+
+
+
 
 controller.hears(['ooga'], 'direct_message,direct_mention', (bot, message) => {
   console.log(`Message:\n${util.inspect(message)}`)
   
-  // 1. parse relavent info from message body
-  //      a. user
-  //      b. description
-  //      c. time range --> array of messages in channel
 
   controller.storage.users.get(message.user, (error, user) => {
     if (error) console.log(error)
