@@ -213,17 +213,17 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 // the values from the form are in event.submission    
 controller.on('dialog_submission', function(bot, message) {
   const submission = message.submission;
+  console.log(`Message:\n${util.inspect(message)}`)
   console.log(`Submission:\n${util.inspect(submission)}`)
   
 
-  // bot.api.channels.history({
-  //   channel: message.channel,
-  //   inclusive: true,
-  //   latest: from,
-  //   oldest: to
-  // }, (err, res) => {
-
-  // })
+  bot.api.channels.history({
+    channel: message.channel,
+    count: 3
+  }, (err, res) => {
+    if (err) console.log(err)
+    else console.log(`\nChannel History:\n${util.inspect(res)}`)
+  })
 
 
   bot.reply(message, 'Got it!');
