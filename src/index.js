@@ -226,7 +226,7 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 
     let dialog = bot.createDialog(
       `New Problem`,
-      `problem_dialog_${user}`,
+      `problem_dialog:${from}:${to}`,
       'Submit',
       elements
     )
@@ -249,6 +249,9 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 // the values from the form are in event.submission    
 controller.on('dialog_submission', (bot, message) => {
   const submission = message.submission;
+  const from = _.split(message.callback_id, ':')[1]
+  const to = _.split(message.callback_id, ':')[2]
+
 
   console.log(`Message:\n${util.inspect(message)}\n\n`)
   console.log(`Submission:\n${util.inspect(submission)}`)
