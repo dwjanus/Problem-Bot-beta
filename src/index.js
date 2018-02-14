@@ -255,7 +255,7 @@ controller.on('dialog_submission', (bot, message) => {
   console.log(`Submission:\n${util.inspect(submission)}`)
 
   const options = {
-    token: bot.configureIncomingWebhook.bot.app_token,
+    token: bot.config.bot.app_token, //config('SLACK_BOT_TOKEN')
     channel: message.channel,
     latest: to,
     oldest: from
