@@ -122,10 +122,11 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   now = dateformat(now)
   console.log(`now: ${now}`)
 
-  const from_s = _.split(from, /[a-zA-z]+/g)[0]
-  const to_s = _.split(to, /[a-zA-z]+/g)[0]
-  const from_n = _.split(from, /\d+[:]\d+/)[1]
-  const to_n = _.split(to, /\d+[:]\d+/)[1]
+  // maybe replace with --> const from_s = from.match(/[a-zA-z]+/g) ?
+  const from_n = _.split(from, /[a-zA-z]+/g)[0]
+  const to_n = _.split(to, /[a-zA-z]+/g)[0]
+  const from_s = _.split(from, /\d+[:]\d+/)[1]
+  const to_s = _.split(to, /\d+[:]\d+/)[1]
 
   from = `${from_n} ${from_s}`
   to = `${to_n} ${to_s}`
