@@ -124,8 +124,8 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
 
   const from_s = _.split(from, /[a-zA-z]+/g)[0]
   const to_s = _.split(to, /[a-zA-z]+/g)[0]
-  const from_n = _.split(from, /\d+[:]\d+/)[0]
-  const to_n = _.split(to, /\d+[:]\d+/)[0]
+  const from_n = _.split(from, /\d+[:]\d+/)[1]
+  const to_n = _.split(to, /\d+[:]\d+/)[1]
 
   from = `${from_n} ${from_s}`
   to = `${to_n} ${to_s}`
