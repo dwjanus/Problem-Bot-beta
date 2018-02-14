@@ -233,8 +233,6 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 
     dialog = dialog.asObject()
 
-    // dialog.trigger_id = trigger.trigger_id
-
     bot.replyWithDialog(trigger, dialog, (err, res) => {
       if (err) {
         console.log(`\nerror: ${util.inspect(err)}\nresponse:\n${util.inspect(res)}\n`)
@@ -256,11 +254,16 @@ controller.on('dialog_submission', (bot, message) => {
   console.log(`Message:\n${util.inspect(message)}\n\n`)
   console.log(`Submission:\n${util.inspect(submission)}`)
 
-  bot.api.channels.history({
+  const options = {
+    token: bot.configureIncomingWebhook.bot.app_token,
     channel: message.channel,
     latest: to,
     oldest: from
-  }, (err, res) => {
+  }
+
+  console.log(`options:\n${util.inspect(options)}`)
+
+  bot.api.channels.history(options, (err, res) => {
     if (err) console.log(util.inspect(err))
     else console.log(`\nChannel History:\n${util.inspect(res)}`)
   })
