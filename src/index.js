@@ -150,7 +150,7 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
       attachments: [
         {
           title: `Create new problem with subject: "${subject}"?`,
-          callback_id: `create_cancel:${subject}:${unix_from}:${unit_to}`,
+          callback_id: `create_cancel:${subject}:${unix_from}:${unix_to}`,
           attachment_type: 'default',
           actions: [
             {
