@@ -135,9 +135,12 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   const date_to = _.replace(now, /\d\d[:]\d\d[:]\d\d/, to)
   console.log(`date --> from: ${date_from}  to: ${date_to}\n`)
 
-  const unix_from = Date.parse(date_from).toString().substring(0,10)
-  const unix_to = Date.parse(date_to).toString().substring(0,10)
+  let unix_from = Date.parse(date_from)
+  let unix_to = Date.parse(date_to)
   console.log(`UNIX timestamps --> from: ${unix_from}  to: ${unix_to}`)
+  unix_from = _.toString(unix_from).substring(0,10)
+  unix_to = _.toString(unix_to).substring(0,10)
+  console.log(`UNIX timestamps after string manip --> from: ${unix_from}  to: ${unix_to}\n`)
 
   // ideally we can pass it into our channel history function from here
 
