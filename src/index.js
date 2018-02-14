@@ -150,7 +150,7 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
       attachments: [
         {
           title: `Create new problem with subject: "${subject}"?`,
-          callback_id: `create_cancel:${subject}:${user.fullName}`,
+          callback_id: `create_cancel:${subject}:${unix_from}:${unit_to}`,
           attachment_type: 'default',
           actions: [
             {
@@ -177,8 +177,10 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 
   if (trigger.actions[0].name.match(/create/)) {
     const subject = _.split(trigger.callback_id, ':')[1]
-    const user = _.split(trigger.callback_id, ':')[2]
-    console.log(`>> new problem: ${subject}`)
+    const from = _.split(trigger.callback_id, ':')[2]
+    const to = _.split(trigger.callback_id, ':')[3]
+
+    console.log(`>> new problem: ${subject}\n>> capture: ${from} - ${to}`)
     
     const elements = [
       {
@@ -231,7 +233,7 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 
     dialog = dialog.asObject()
 
-    dialog.trigger_id = trigger.trigger_id
+    // dialog.trigger_id = trigger.trigger_id
 
     bot.replyWithDialog(trigger, dialog, (err, res) => {
       if (err) {
@@ -248,13 +250,13 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 controller.on('dialog_submission', (bot, message) => {
   const submission = message.submission;
 
-  console.log(`Message:\n${util.inspect(message)}`)
+  console.log(`Message:\n${util.inspect(message)}\n\n`)
   console.log(`Submission:\n${util.inspect(submission)}`)
-  
 
   bot.api.channels.history({
     channel: message.channel,
-    count: 3
+    latest: to,
+    oldest: from
   }, (err, res) => {
     if (err) console.log(err)
     else console.log(`\nChannel History:\n${util.inspect(res)}`)
