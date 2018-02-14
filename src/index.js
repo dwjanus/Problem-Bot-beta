@@ -123,14 +123,16 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   console.log(`now: ${now}`)
 
   const from_s = _.split(from, /[a-z]/)
-  const to_s = _.split(from, /[a-z]/)
+  const to_s = _.split(to, /[a-z]/)
+
+  console.log(`from_s: ${from_s}`)
 
   from = `${from_s[0]} ${from_s[1]}`
   to = `${to_s[0]} ${to_s[1]}`
 
   const date_from = _.replace(now, /\d\d[:]\d\d[:]\d\d/, from)
   const date_to = _.replace(now, /\d\d[:]\d\d[:]\d\d/, to)
-  console.log(`date --> from: ${date_from}  to: ${date_to}`)
+  console.log(`date --> from: ${date_from}  to: ${date_to}\n`)
 
   const unix_from = Date.parse(date_from).toString().substring(0,9)
   const unix_to = Date.parse(date_to).toString().substring(0,9)
