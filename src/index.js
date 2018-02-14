@@ -267,7 +267,7 @@ controller.on('dialog_submission', (bot, message) => {
 
   bot.api[type].history(options, (err, res) => {
     if (err) console.log(util.inspect(err))
-    else console.log(`\nChannel History:\n${util.inspect(res)}`)
+    else console.log(`\n${type} History:\n${util.inspect(res)}`)
   })
 
 
