@@ -135,8 +135,8 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   const date_to = _.replace(now, /\d\d[:]\d\d[:]\d\d/, to)
   console.log(`date --> from: ${date_from}  to: ${date_to}\n`)
 
-  const unix_from = Date.parse(date_from).toString().substring(0,9)
-  const unix_to = Date.parse(date_to).toString().substring(0,9)
+  const unix_from = Date.parse(date_from).toString().substring(0,10)
+  const unix_to = Date.parse(date_to).toString().substring(0,10)
   console.log(`UNIX timestamps --> from: ${unix_from}  to: ${unix_to}`)
 
   // ideally we can pass it into our channel history function from here
@@ -247,8 +247,8 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 // the values from the form are in event.submission    
 controller.on('dialog_submission', (bot, message) => {
   const submission = message.submission;
-  const from = _.toNumber(`${_.split(message.callback_id, ':')[1]}.000000`)
-  const to = _.toNumber(`${_.split(message.callback_id, ':')[2]}.000000`)
+  const from = _.split(message.callback_id, ':')[1] + '.000000'
+  const to = _.split(message.callback_id, ':')[2] + '.000000'
   let type = 'channels'
 
   console.log(`Message:\n${util.inspect(message)}\n\n`)
