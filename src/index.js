@@ -249,13 +249,15 @@ controller.on('dialog_submission', (bot, message) => {
   const submission = message.submission;
   const from = _.split(message.callback_id, ':')[1]
   const to = _.split(message.callback_id, ':')[2]
-
+  let type = 'channels'
 
   console.log(`Message:\n${util.inspect(message)}\n\n`)
   console.log(`Submission:\n${util.inspect(submission)}`)
 
+  if (_.startsWith(message.channel, 'G')) type = 'groups'
+
   const options = {
-    token: bot.config.bot.app_token, //config('SLACK_BOT_TOKEN')
+    token: bot.config.bot.app_token,
     channel: message.channel,
     latest: to,
     oldest: from
@@ -263,7 +265,7 @@ controller.on('dialog_submission', (bot, message) => {
 
   console.log(`options:\n${util.inspect(options)}`)
 
-  bot.api.channels.history(options, (err, res) => {
+  bot.api[type].history(options, (err, res) => {
     if (err) console.log(util.inspect(err))
     else console.log(`\nChannel History:\n${util.inspect(res)}`)
   })
