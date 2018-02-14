@@ -247,8 +247,8 @@ controller.on('interactive_message_callback', (bot, trigger) => {
 // the values from the form are in event.submission    
 controller.on('dialog_submission', (bot, message) => {
   const submission = message.submission;
-  const from = _.split(message.callback_id, ':')[1]
-  const to = _.split(message.callback_id, ':')[2]
+  const from = _.toNumber(`${_.split(message.callback_id, ':')[1]}.000000`)
+  const to = _.toNumber(`${_.split(message.callback_id, ':')[2]}.000000`)
   let type = 'channels'
 
   console.log(`Message:\n${util.inspect(message)}\n\n`)
