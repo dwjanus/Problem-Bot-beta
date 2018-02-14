@@ -112,8 +112,8 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   const capture = _.split(tsplit[1], '-')
 
   const subject = _.split(tsplit[0], 'problem:')[1]
-  const from = _.trim(capture[0])
-  const to = _.trim(capture[1])
+  let from = _.trim(capture[0])
+  let to = _.trim(capture[1])
 
   console.log(`\ntsplit: ${tsplit}\nsubject: ${subject}\nfrom: ${from}  to: ${to}\n`)
 
@@ -122,20 +122,18 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   now = dateformat(now)
   console.log(`now: ${now}`)
 
-  const from24 = convertTime12to24(from) + ':00'
-  const to24 = convertTime12to24(to) + ':00'
-  console.log(`24hrs --> from: ${from24}  to: ${to24}`)
+  const from_s = _.split(from, /[a-z]/)
+  const to_s = _.split(from, /[a-z]/)
 
-  const date_from = _.replace(now, /\d\d[:]\d\d[:]\d\d/, from24)
-  const date_to = _.replace(now, /\d\d[:]\d\d[:]\d\d/, to24)
+  from = `${from_s[0]} ${from_s[1]}`
+  to = `${to_s[0]} ${to_s[1]}`
+
+  const date_from = _.replace(now, /\d\d[:]\d\d[:]\d\d/, from)
+  const date_to = _.replace(now, /\d\d[:]\d\d[:]\d\d/, to)
   console.log(`date --> from: ${date_from}  to: ${date_to}`)
 
-  const utc_from = dateformat(date_from, true)
-  const utc_to = dateformat(date_to, true)
-  console.log(`UTC date --> from: ${utc_from}  to: ${utc_to}`)
-
-  const unix_from = Date.parse(utc_from)
-  const unix_to = Date.parse(utc_to)
+  const unix_from = Date.parse(utc_from).substring(0,9)
+  const unix_to = Date.parse(utc_to).substring(0,9)
   console.log(`UNIX timestamps --> from: ${unix_from}  to: ${unix_to}`)
 
   // ideally we can pass it into our channel history function from here
@@ -174,7 +172,6 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
 controller.on('interactive_message_callback', (bot, trigger) => {
   console.log('>> interactive_callback heard by controller')
 
-  // if (message.callback_id === 'create_cancel' && message.actions === 'create') {
   if (trigger.actions[0].name.match(/create/)) {
     const subject = _.split(trigger.callback_id, ':')[1]
     const user = _.split(trigger.callback_id, ':')[2]
@@ -331,17 +328,6 @@ const getUserEmailArray = (bot) => {
       }
     }
   })
-}
-
-function convertTime12to24(time12h) {
-  const [time, modifier] = time12h.split(/[a-z]/)
-  let [hours, minutes] = time.split(':')
-
-  if (hours === '12') hours = '00'
-  if (hours.length < 2) hours = `0${hours}`
-  if (modifier === ( 'PM'|| 'pm' )) hours = parseInt(hours, 10) + 12
-
-  return hours + ':' + minutes
 }
 
 controller.storage.teams.all((err, teams) => {
