@@ -261,7 +261,7 @@ controller.on('dialog_submission', (bot, message) => {
     latest: to,
     oldest: from
   }, (err, res) => {
-    if (err) console.log(err)
+    if (err) console.log(util.inspect(err))
     else console.log(`\nChannel History:\n${util.inspect(res)}`)
   })
 
