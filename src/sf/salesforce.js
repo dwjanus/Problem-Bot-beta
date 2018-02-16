@@ -100,7 +100,7 @@ function retrieveSfObj (conn) {
           Origin: origin,
           Description: description,
           // OwnerId = 00539000005ozwGAAQ
-          RecordTypeId: record('id', 'Problem')
+          RecordTypeId: recordtypeid
         }, (error, ret) => {
           if (error || !ret.success) throw error
           console.log(`> New Problem Created - Record id: ${util.inspect(ret)}`)
