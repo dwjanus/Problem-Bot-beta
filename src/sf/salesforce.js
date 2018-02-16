@@ -89,7 +89,7 @@ function retrieveSfObj (conn) {
     
     // this will become generic Problem creation handler
     newProblem (user, subject, platform, priority, origin, description) {
-      console.log(`[salesforce] ** about to create new Problem for ${userId}`)
+      console.log(`[salesforce] ** about to create new Problem for ${user}`)
 
       return new Promise((resolve, reject) => {
         return this.retrieveRecordTypeId('Problem', 'Case').then((recordtypeid) => {
