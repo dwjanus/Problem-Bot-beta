@@ -234,25 +234,20 @@ controller.on('dialog_submission', (bot, message) => {
   console.log(`Message:\n${util.inspect(message)}\n\n`)
   console.log(`Submission:\n${util.inspect(submission)}`)
 
-  salesforce(usersf).then((samanage) => {
-    samanage.newProblem(description, usersf, (problemId) => {
-      // console.log(`problem id: ${util.inspect(problemId)}`)
-      // return problemId
+  salesforce(message.user).then((samanage) => {
+    samanage.newProblem(usersf, subject, platform, origin, description, (problemId) => {
+      console.log(`new problem id returned: ${util.inspect(problemId)}`)
       return
     })
   }).then(() => {
-    bot.reply(message, 'It is done.')
+    bot.reply(message, 'Your problem has been submitted!')
   })
   .catch((err) => {
     console.log(`oops! ${err}`)
-    bot.reply(message, err.text)
+    bot.reply(message, err)
   })
 
-
-  bot.reply(message, 'Your problem has been submitted!');
-
-  // call dialogOk or else Slack will think this is an error
-  bot.dialogOk();
+  bot.dialogOk()
 });
 
 controller.storage.teams.all((err, teams) => {

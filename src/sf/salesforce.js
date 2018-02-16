@@ -88,27 +88,29 @@ function retrieveSfObj (conn) {
   return {
     
     // this will become generic Problem creation handler
-    newProblem (user, subject, platform, priority, origin, description, callback) {
+    newProblem (user, subject, platform, priority, origin, description) {
       console.log(`[salesforce] ** about to create new Problem for ${userId}`)
-      
-      this.retrieveRecordTypeId('Problem', 'Case').then((recordtypeid) => {
-        conn.sobject('Case').create({
-          SamanageESD__RequesterUser__c: user,
-          Subject: `${subject} -- ${platform}`, // for now we append to subject since i dont have that custom field in tso
-          // Platform__c: platform,
-          Priority: priority,
-          Origin: origin,
-          Description: description,
-          // OwnerId = 00539000005ozwGAAQ
-          RecordTypeId: recordtypeid
-        }, (error, ret) => {
-          if (error || !ret.success) throw error
-          console.log(`> New Problem Created - Record id: ${util.inspect(ret)}`)
-          return ret
+
+      return new Promise((resolve, reject) => {
+        return this.retrieveRecordTypeId('Problem', 'Case').then((recordtypeid) => {
+          conn.sobject('Case').create({
+            SamanageESD__RequesterUser__c: user,
+            Subject: `${subject} -- ${platform}`, // for now we append to subject since i dont have that custom field in tso
+            // Platform__c: platform,
+            Priority: priority,
+            Origin: origin,
+            Description: description,
+            // OwnerId = 00539000005ozwGAAQ
+            RecordTypeId: recordtypeid
+          }, (error, ret) => {
+            if (error || !ret.success) throw error
+            console.log(`>>> New Problem Created - Record id: ${util.inspect(ret)}`)
+            return resolve(ret)
+          })
+        }).catch(err => {
+          console.log(err)
+          return reject('Oops! Something messed up with the Salesforce API')
         })
-      }).catch(err => {
-        console.log(err)
-        return callback(error, null)
       })
     },
     
