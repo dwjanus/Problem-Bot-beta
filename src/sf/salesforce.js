@@ -10,17 +10,11 @@ import Promise from 'bluebird'
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
 const recordType = {
-  // Incident: '01239000000EB4NAAW',
-  // Change: '01239000000EB4MAAW',
-  Problem: '0120a000000vHVKAA2',
-  // Release: '01239000000EB4PAAW',
+  Problem: '0120a000000vHVKAA2' // 01239000000EB4OAAW for c0
 }
 
 const recordName = {
-  // '01239000000EB4NAAW': 'Incident',
-  // '01239000000EB4MAAW': 'Change',
-  '0120a000000vHVKAA2': 'Problem',
-  // '01239000000EB4PAAW': 'Release'
+  '0120a000000vHVKAA2': 'Problem'
 }
 
 const record = (arg, key) => {
@@ -92,19 +86,29 @@ export default ((slackUserId) => {
 
 function retrieveSfObj (conn) {
   return {
+    
     // this will become generic Problem creation handler
-    newProblem (description, user, callback) {
-      const userId = user.sf.id
-      console.log(`[salesforce] ** about to create new Problem for Slack user: ${user.id} -- SF: ${userId}`)
-      conn.sobject('Case').create({
-        Subject: description,
-        SamanageESD__RequesterUser__c: userId,
-        Description: description,
-        RecordTypeId: record('Problem')
-      }, (error, ret) => {
-        if (error || !ret.success) callback(error, null)
-        console.log(`> New Problem Created - Record id: ${util.inspect(ret)}`)
-        return ret
+    newProblem (user, subject, platform, priority, origin, description, callback) {
+      console.log(`[salesforce] ** about to create new Problem for ${userId}`)
+      
+      this.retrieveRecordTypeId('Problem', 'Case').then((recordtypeid) => {
+        conn.sobject('Case').create({
+          SamanageESD__RequesterUser__c: user,
+          Subject: `${subject} -- ${platform}`, // for now we append to subject since i dont have that custom field in tso
+          // Platform__c: platform,
+          Priority: priority,
+          Origin: origin,
+          Description: description,
+          // OwnerId = 00539000005ozwGAAQ
+          RecordTypeId: record('id', 'Problem')
+        }, (error, ret) => {
+          if (error || !ret.success) throw error
+          console.log(`> New Problem Created - Record id: ${util.inspect(ret)}`)
+          return ret
+        })
+      }).catch(err => {
+        console.log(err)
+        return callback(error, null)
       })
     },
     
@@ -148,6 +152,17 @@ function retrieveSfObj (conn) {
         else {
           callback(null, result.records[0].Id)
         }
+      })
+    },
+
+    retrieveRecordTypeId (name, objectType) {
+      console.log('** [salesforce] **\n>> grabbing record type id')
+
+      return new Promise((resolve, reject) => {
+        conn.query(`SELECT Id, Name FROM RecordType WHERE Name = '${name}' and sObjectType = '${objectType}'`, (err, result) => {
+          if (err) return reject(err)
+          return resolve(result.Id)
+        })
       })
     },
 

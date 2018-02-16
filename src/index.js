@@ -6,7 +6,7 @@ import mongo from './lib/mongo-storage.js'
 import salesforce from './sf/salesforce'
 import auth from './sf/salesforce-auth.js'
 import dateformat from 'dateformat'
-import timestamp from 'unix-timestamp'
+import Promise from 'bluebird'
 
 const mongoStorage = mongo({ mongoUri: config('MONGODB_URI') })
 const port = process.env.PORT || process.env.port || config('PORT')
@@ -22,14 +22,14 @@ if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET')) {
 
 const controller = Botkit.slackbot({
   token: config('SLACK_BOT_TOKEN'),
-  storage: mongoStorage
+  storage: mongoStorage,
+  interactive_replies: true,
+  rtm_receive_messages: true
 }).configureSlackApp({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
   clientVerificationToken: config('SLACK_VERIFY'),
   redirectUri: 'https://problem-bot-beta.herokuapp.com/oauth',
-  interactive_replies: true,
-  rtm_receive_messages: false,
   scopes: ['bot', 'incoming-webhook', 'channels:history', 'groups:history']
 })
 
@@ -87,13 +87,13 @@ controller.on('create_bot', (bot, botConfig) => {
 controller.startTicking()
 
 controller.on('rtm_close', (bot) => {
-  console.log(`** The RTM api just closed -- ${bot.id}`)
+  console.log(`** The RTM api just closed`)
   // may want to attempt to re-open
 })
 
 // Handle events related to the websocket connection to Slack
 controller.on('rtm_open', (bot) => {
-  console.log(`** The RTM api just connected! -- ${bot.id}`)
+  console.log(`** The RTM api just connected!`)
   // getUserEmailArray(bot)
 })
 
@@ -102,12 +102,197 @@ controller.hears(['hello'], 'direct_message,direct_mention', (bot, message) => {
 })
 
 
-// still need to add parse for timeframes to populate description area
-controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) => {
+controller.hears(['(.*)'], 'direct_mention', (bot, message) => {
+  const subject = message.text
+  console.log(`Text: ${subject}`)
 
+  controller.storage.users.get(message.user, (error, user) => {
+    if (error) console.log(error)
+    
+    console.log(`user to pass to sf: ${util.inspect(user)}`)
+    
+    bot.reply(message, {
+      attachments: [
+        {
+          title: `Create new problem with subject: "${subject}"?`,
+          callback_id: `${user.sf.id}:${subject}`,
+          attachment_type: 'default',
+          actions: [
+            {
+              name: 'create',
+              text: 'Create',
+              value: 'create',
+              type: 'button'
+            },
+            {
+              name: 'cancel',
+              text: 'Cancel',
+              value: 'cancel',
+              type: 'button'
+            }
+          ]
+        }
+      ]
+    })
+  })
+})
+
+controller.on('interactive_message_callback', (bot, trigger) => {
+  console.log('>> interactive_callback heard by controller')
+
+  if (trigger.actions[0].name.match(/create/)) {
+    const callbackids = _.split(trigger.callback_id, ':')
+    const usersf = callbackids[0]
+    const subject = callbackids[1]
+    let dialog_id = `${usersf}:${subject}`
+
+    if (callbackids.length > 2) {
+      const from = _.split(trigger.callback_id, ':')[2]
+      const to = _.split(trigger.callback_id, ':')[3]
+      console.log(`\n>> capture: ${from} - ${to}`)
+      dialog_id += `:${from}:${to}`
+    }
+    
+    console.log(`>> ${usersf}\n>> new problem: ${subject}`)
+    
+    const elements = [
+      {
+        label: 'Subject',
+        name: 'subject',
+        type: 'text',
+        value: `${subject}`
+      },
+      {
+        label: 'Platform',
+        name: 'platform', 
+        type: 'select',
+        value: null,
+        options: [
+          { label: 'SSP', value: 'SSP' },
+          { label: 'SSF', value: 'SSF' },
+          { label: 'ISD', value: 'ISD' },
+          { label: 'Other', value: 'other' }
+        ]
+      },
+      {
+        label: 'Priority',
+        name: 'priority', 
+        type: 'select',
+        value: 'Medium',
+        options: [
+          { label: 'Low', value: 'Low' },
+          { label: 'Medium', value: 'Medium' },
+          { label: 'High', value: 'High' }
+        ]
+      },
+      {
+        label: 'Origin',
+        name: 'origin',
+        type: 'text',
+        optional: true
+      },
+      {
+        label: 'Description',
+        name: 'description',
+        type: 'textarea',
+        optional: true
+      }
+    ]
+
+    let dialog = bot.createDialog(
+      `New Problem`,
+      `${dialog_id}`,
+      'Submit',
+      elements
+    )
+
+    bot.replyWithDialog(trigger, dialog.asObject(), (err, res) => {
+      if (err) {
+        console.log(`\nerror: ${util.inspect(err)}\nresponse:\n${util.inspect(res)}\n`)
+        console.log(`\ndialog:\n${util.inspect(dialog)}`)
+      } else console.log('dialog successfully delivered!')
+    })
+  }
+})
+
+
+// handle a dialog submission
+// the values from the form are in event.submission    
+controller.on('dialog_submission', (bot, message) => {
+  const submission = message.submission;
+
+  const id_params = _.split(message.callback_id, ':')
+  const usersf = id_params[0]
+  const subject = id_params[1]
+
+  if (id_params.length > 2) {
+    const from = _.split(message.callback_id, ':')[1] + '.000000'
+    const to = _.split(message.callback_id, ':')[2] + '.000000'
+    const history = getConvo(from, to, message.channel, bot)
+  }
+
+  console.log(`Message:\n${util.inspect(message)}\n\n`)
+  console.log(`Submission:\n${util.inspect(submission)}`)
+
+  salesforce(usersf).then((samanage) => {
+    samanage.newProblem(description, usersf, (problemId) => {
+      // console.log(`problem id: ${util.inspect(problemId)}`)
+      // return problemId
+      return
+    })
+  }).then(() => {
+    bot.reply(message, 'It is done.')
+  })
+  .catch((err) => {
+    console.log(`oops! ${err}`)
+    bot.reply(message, err.text)
+  })
+
+
+  bot.reply(message, 'Your problem has been submitted!');
+
+  // call dialogOk or else Slack will think this is an error
+  bot.dialogOk();
+});
+
+controller.storage.teams.all((err, teams) => {
+  console.log('** connecting teams **\n')
+  if (err) throw new Error(err)
+  for (const t in teams) {
+    if (teams[t].bot) {
+      const bot = controller.spawn(teams[t]).startRTM((error) => {
+        if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
+        else {
+          getUserEmailArray(bot)
+          trackBot(bot)
+        }
+      })
+    }
+  }
+})
+
+const getUserEmailArray = (bot) => {
+  console.log('>> getting user email array')
+  bot.api.users.list({}, (err, response) => {
+    if (err) console.log(err)
+    if (response.hasOwnProperty('members') && response.ok) {
+      const total = response.members.length
+      for (let i = 0; i < total; i++) {
+        const member = response.members[i]
+        const newMember = { id: member.id, team_id: member.team_id, name: member.name, fullName: member.real_name, email: member.profile.email }
+        _team.push(newMember)
+        controller.storage.users.get(member.id, (error, user) => {
+          if (err) console.log(error)
+          if (!user || !user.sf) controller.storage.users.save(newMember) // adds new team member who do not have sf auth yet
+        })
+      }
+    }
+  })
+}
+
+const parseTimestamps = (message) => {
   // e.g. --> "new problem: _______ // 10:29am - 12:01pm"
 
-  // parse parameters from message body
   const tsplit = _.split(message.text, ' // ')
   const capture = _.split(tsplit[1], '-')
 
@@ -142,126 +327,17 @@ controller.hears(['problem'], 'direct_message,direct_mention', (bot, message) =>
   unix_to = _.toString(unix_to).substring(0,10)
   console.log(`UNIX timestamps after string manip --> from: ${unix_from}  to: ${unix_to}\n`)
 
-  // ideally we can pass it into our channel history function from here
+  return { from: unix_from, to: unix_to }
+}
 
-  controller.storage.users.get(message.user, (error, user) => {
-    if (error) console.log(error)
-    
-    console.log(`user to pass to sf: ${util.inspect(user)}`)
-    
-    bot.reply(message, {
-      attachments: [
-        {
-          title: `Create new problem with subject: "${subject}"?`,
-          callback_id: `create_cancel:${subject}:${unix_from}:${unix_to}`,
-          attachment_type: 'default',
-          actions: [
-            {
-              name: 'create',
-              text: 'Create',
-              value: 'create',
-              type: 'button'
-            },
-            {
-              name: 'cancel',
-              text: 'Cancel',
-              value: 'cancel',
-              type: 'button'
-            }
-          ]
-        }
-      ]
-    })
-  })
-})
-
-controller.on('interactive_message_callback', (bot, trigger) => {
-  console.log('>> interactive_callback heard by controller')
-
-  if (trigger.actions[0].name.match(/create/)) {
-    const subject = _.split(trigger.callback_id, ':')[1]
-    const from = _.split(trigger.callback_id, ':')[2]
-    const to = _.split(trigger.callback_id, ':')[3]
-
-    console.log(`>> new problem: ${subject}\n>> capture: ${from} - ${to}`)
-    
-    const elements = [
-      {
-        label: 'Subject',
-        name: 'subject',
-        type: 'text',
-        value: `${subject}`
-      },
-      {
-        label: 'Platform',
-        name: 'platform', 
-        type: 'select',
-        value: null,
-        options: [
-          { label: 'MMBU', value: 'MMBU' },
-          { label: 'EBU', value: 'EBU' }
-        ]
-      },
-      {
-        label: 'Priority',
-        name: 'priority', 
-        type: 'select',
-        value: 'Medium',
-        options: [
-          { label: 'Low', value: 'Low' },
-          { label: 'Medium', value: 'Medium' },
-          { label: 'High', value: 'High' }
-        ]
-      },
-      {
-        label: 'Impact Description',
-        name: 'impact',
-        type: 'textarea',
-        optional: true
-      },
-      {
-        label: 'Notes',
-        name: 'notes',
-        type: 'textarea',
-        optional: true
-      }
-    ]
-
-    let dialog = bot.createDialog(
-      `New Problem`,
-      `problem_dialog:${from}:${to}`,
-      'Submit',
-      elements
-    )
-
-    dialog = dialog.asObject()
-
-    bot.replyWithDialog(trigger, dialog, (err, res) => {
-      if (err) {
-        console.log(`\nerror: ${util.inspect(err)}\nresponse:\n${util.inspect(res)}\n`)
-        console.log(`\ndialog:\n${util.inspect(dialog)}`)
-      } else console.log('success!')
-    })
-  }
-})
-
-
-// handle a dialog submission
-// the values from the form are in event.submission    
-controller.on('dialog_submission', (bot, message) => {
-  const submission = message.submission;
-  const from = _.split(message.callback_id, ':')[1] + '.000000'
-  const to = _.split(message.callback_id, ':')[2] + '.000000'
+const getConvo = (from, to, channel, bot) => {
   let type = 'channels'
 
-  console.log(`Message:\n${util.inspect(message)}\n\n`)
-  console.log(`Submission:\n${util.inspect(submission)}`)
-
-  if (_.startsWith(message.channel, 'G')) type = 'groups'
+  if (_.startsWith(channel, 'G')) type = 'groups'
 
   const options = {
     token: bot.config.bot.app_token,
-    channel: message.channel,
+    channel: channel,
     latest: to,
     oldest: from
   }
@@ -272,93 +348,24 @@ controller.on('dialog_submission', (bot, message) => {
     if (err) console.log(util.inspect(err))
     else console.log(`\n${type} History:\n${util.inspect(res)}`)
   })
+}
 
+const buildDescription = (messages) => {
+  let description = ''
+  const getuser = Promise.promisify(controller.storage.users.get)
 
-  bot.reply(message, 'Got it!');
+  _.forEach(messages, (message) => {
+    if (message.type === 'message') {
+      // find user
+      return getuser(message.user).then((user) =>{
+        const text = `${user.fullName}: ${message.text}\n`
 
-  // call dialogOk or else Slack will think this is an error
-  bot.dialogOk();
-});
-
-
-
-
-controller.hears(['ooga'], 'direct_message,direct_mention', (bot, message) => {
-  console.log(`Message:\n${util.inspect(message)}`)
-  
-
-  controller.storage.users.get(message.user, (error, user) => {
-    if (error) console.log(error)
-
-    // let user = _.find(_team, { id: message.user })
-    console.log(`user to pass to sf: ${util.inspect(user)}`)
-
-    const description = _.split(message.text, ':')[1]
-
-    console.log(`\ndescription: ${description}\n`)
-
-    // 1.a parse channel messages from timeframe
-    // const comments = parse()
-
-    // 2. pass to salesforce method and instantiate problem with description => return id of new problem
-    salesforce(user.id).then((samanage) => {
-      samanage.newProblem(description, user, (problemId) => {
-        // console.log(`problem id: ${util.inspect(problemId)}`)
-        // return problemId
-        return
+        // LATER - convert ts to regular time and add to text variable
+        description += text
+      }).catch((err) => {
+        console.log(`Error building description: ${err}`)
       })
-      // .then((problemId) => {
-      //   return samanage.addComments(comments, problemId)
-      // }).then((feedComments) => {
-      //   return samanage.createFeed(feedComments.id, feedComments.feedComments)
-      // }).then((info) => {
-      //   return bot.reply(message, info)
-      // })
-    }).then(() => {
-      bot.reply(message, 'It is done.')
-    })
-    .catch((err) => {
-      console.log(`oops! ${err}`)
-      bot.reply(message, err.text)
-    })
-    // 3. pass id of problem and array of messages into second function and append all as comments
-
-    // 4. reply accordingly
-  })
-})
-
-const getUserEmailArray = (bot) => {
-  console.log('>> getting user email array')
-  bot.api.users.list({}, (err, response) => {
-    if (err) console.log(err)
-    if (response.hasOwnProperty('members') && response.ok) {
-      const total = response.members.length
-      for (let i = 0; i < total; i++) {
-        const member = response.members[i]
-        const newMember = { id: member.id, team_id: member.team_id, name: member.name, fullName: member.real_name, email: member.profile.email }
-        _team.push(newMember)
-        controller.storage.users.get(member.id, (error, user) => {
-          if (err) console.log(error)
-          if (!user || !user.sf) controller.storage.users.save(newMember) // adds new team member who do not have sf auth yet
-        })
-      }
     }
   })
 }
-
-controller.storage.teams.all((err, teams) => {
-  console.log('** connecting teams **\n')
-  if (err) throw new Error(err)
-  for (const t in teams) {
-    if (teams[t].bot) {
-      const bot = controller.spawn(teams[t]).startRTM((error) => {
-        if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
-        else {
-          getUserEmailArray(bot)
-          trackBot(bot)
-        }
-      })
-    }
-  }
-})
 
