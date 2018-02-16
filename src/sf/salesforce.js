@@ -93,7 +93,7 @@ function retrieveSfObj (conn) {
 
       return new Promise((resolve, reject) => {
         return this.retrieveRecordTypeId('Problem', 'Case').then((recordtypeid) => {
-          conn.sobject('Case').create({
+          return conn.sobject('Case').create({
             SamanageESD__RequesterUser__c: user,
             Subject: `${subject} -- ${platform}`, // for now we append to subject since i dont have that custom field in tso
             // Platform__c: platform,
@@ -103,7 +103,7 @@ function retrieveSfObj (conn) {
             // OwnerId = 00539000005ozwGAAQ
             RecordTypeId: recordtypeid
           }, (error, ret) => {
-            if (error || !ret.success) throw error
+            if (error || !ret.success) return reject(error || 'error')
             console.log(`>>> New Problem Created - Record id: ${util.inspect(ret)}`)
             return resolve(ret)
           })
