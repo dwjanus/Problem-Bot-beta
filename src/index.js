@@ -235,7 +235,7 @@ controller.on('dialog_submission', (bot, message) => {
   console.log(`Submission:\n${util.inspect(submission)}`)
 
   salesforce(message.user).then((samanage) => {
-    samanage.newProblem(usersf, subject, platform, origin, description, (problemId) => {
+    samanage.newProblem(usersf, submission.subject, submission.platform, submission.origin, submission.description, (problemId) => {
       console.log(`new problem id returned: ${util.inspect(problemId)}`)
       return
     })
