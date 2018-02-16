@@ -90,7 +90,6 @@ function retrieveSfObj (conn) {
     // this will become generic Problem creation handler
     newProblem (user, subject, platform, priority, origin, description) {
       console.log(`[salesforce] ** about to create new Problem for ${user}`)
-
       let request
 
       return new Promise((resolve, reject) => {
@@ -110,6 +109,7 @@ function retrieveSfObj (conn) {
             return ret
           })
         }).then((ret) => {
+          console.log(`>> getting link and casenumber now`)
           request = ret
           request.link = `${conn.instanceUrl}/${ret.id}`
           return conn.sobject('Case').retrieve(ret.id, (err, res) => {
