@@ -91,6 +91,8 @@ function retrieveSfObj (conn) {
     newProblem (user, subject, platform, priority, origin, description) {
       console.log(`[salesforce] ** about to create new Problem for ${user}`)
 
+      let request
+
       return new Promise((resolve, reject) => {
         return this.retrieveRecordTypeId('Problem', 'Case').then((recordtypeid) => {
           return conn.sobject('Case').create({
@@ -105,7 +107,15 @@ function retrieveSfObj (conn) {
           }, (error, ret) => {
             if (error || !ret.success) return reject(error || 'error')
             console.log(`>>> New Problem Created - Record id: ${util.inspect(ret)}`)
-            return resolve(ret)
+            return ret
+          })
+        }).then((ret) => {
+          request = ret
+          request.link = `${conn.instanceUrl}/${ret.id}`
+          return conn.sobject('Case').retrieve(ret.id, (err, res) => {
+            if (err) return reject(err)
+            request.CaseNumber = res.CaseNumber
+            return resolve(request)
           })
         }).catch(err => {
           console.log(err)

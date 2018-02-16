@@ -11,7 +11,6 @@ const parseMessages = () => {
   
 }
 
-
 module.exports = {
   parseMessages,
   formatCaseNumber

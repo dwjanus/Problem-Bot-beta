@@ -6,6 +6,7 @@ import mongo from './lib/mongo-storage.js'
 import salesforce from './sf/salesforce'
 import auth from './sf/salesforce-auth.js'
 import dateformat from 'dateformat'
+import utility from './lib/utility.js'
 import Promise from 'bluebird'
 
 const mongoStorage = mongo({ mongoUri: config('MONGODB_URI') })
@@ -235,14 +236,29 @@ controller.on('dialog_submission', (bot, message) => {
   console.log(`Submission:\n${util.inspect(submission)}`)
 
   salesforce(message.user).then((samanage) => {
-    samanage.newProblem(usersf, submission.subject, submission.platform, submission.origin, submission.description, (problemId) => {
-      console.log(`new problem id returned: ${util.inspect(problemId)}`)
-      return
+    samanage.newProblem(usersf, submission.subject, submission.platform, submission.origin, submission.description, (problem) => {
+      console.log(`new problem returned: ${util.inspect(problem)}`)
+      const text = {
+        channel: message.channel,
+        text: `New problem #${utility.formatCaseNumber(problem.CaseNumber)} has been submitted!`,
+        attachments: [
+          {
+            fallback: `${problem.link}`,
+            actions: [
+              {
+                type: 'button',
+                text: 'View',
+                url: problem.link
+              }
+            ]
+          }
+        ]
+      }
+      return text
+    }).then((text) => {
+      bot.reply(message, text)
     })
-  }).then(() => {
-    bot.reply(message, 'Your problem has been submitted!')
-  })
-  .catch((err) => {
+  }).catch((err) => {
     console.log(`oops! ${err}`)
     bot.reply(message, err)
   })
