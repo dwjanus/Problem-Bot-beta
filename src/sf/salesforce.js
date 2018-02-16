@@ -163,7 +163,8 @@ function retrieveSfObj (conn) {
       return new Promise((resolve, reject) => {
         conn.query(`SELECT Id, Name FROM RecordType WHERE Name = '${name}' and sObjectType = '${objectType}'`, (err, result) => {
           if (err) return reject(err)
-          return resolve(result.Id)
+          console.log(`>> result:\n${util.inspect(result.records)}`)
+          return resolve(result.records[0].Id)
         })
       })
     },
